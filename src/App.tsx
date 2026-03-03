@@ -1246,7 +1246,7 @@ function App() {
                         onClick={(e) => { e.stopPropagation(); openAngebotDialog(product) }}
                       >
                         <Mail className="w-4 h-4 mr-1" />
-                        Angebot anfragen
+                        Angebot
                       </Button>
                     </div>
                   </div>
@@ -1656,7 +1656,7 @@ function App() {
       <Dialog open={showAngebotDialog} onOpenChange={(open) => { if (!open) { setShowAngebotDialog(false); setAngebotStatus('idle') } }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Angebot anfragen</DialogTitle>
+            <DialogTitle>Angebot</DialogTitle>
             <DialogDescription>
               {angebotProduct ? (
                 <>Anfrage für: <strong className="text-emerald-600">{angebotProduct.name}</strong></>
