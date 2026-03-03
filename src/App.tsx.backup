@@ -1,0 +1,1327 @@
+import { useState, useEffect } from 'react'
+import { 
+  Menu, X, Phone, Mail, MapPin, ArrowRight, 
+  Building2, Calculator,
+  ShoppingCart, Trash2, Plus, Minus,
+  User, LogOut, CreditCard, Check,
+  ChevronDown, ChevronUp, Award, Star, TrendingUp
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
+import './App.css'
+
+// Types
+interface Product {
+  id: number
+  category: string
+  name: string
+  description: string
+  fullDescription: string
+  specs: string[]
+  price: string
+  priceValue: number
+  wholesalePrice?: string
+  image: string
+  isTopProduct?: boolean
+  rating?: number
+  reviews?: number
+}
+
+interface CartItem extends Product {
+  quantity: number
+}
+
+interface User {
+  id: string
+  email: string
+  name: string
+  type: 'private' | 'company'
+  company?: string
+  companyRegister?: string
+  companyVat?: string
+  isWholesale: boolean
+  customerNumber: string
+}
+
+// SEO Hook
+const useSEO = (title: string, description?: string) => {
+  useEffect(() => {
+    document.title = title ? `${title} | ECO Building Technik` : 'ECO Building Technik GmbH'
+    if (description) {
+      const metaDesc = document.querySelector('meta[name="description"]')
+      if (metaDesc) metaDesc.setAttribute('content', description)
+    }
+  }, [title, description])
+}
+
+function App() {
+  // UI States
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [activeFilter, setActiveFilter] = useState('Alle')
+  const [cart, setCart] = useState<CartItem[]>([])
+  const [showCart, setShowCart] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [productQuantity, setProductQuantity] = useState(1)
+  
+  // Payment States
+  const [showCheckoutDialog, setShowCheckoutDialog] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<'invoice' | 'paypal' | 'card' | 'sofort' | 'klarna'>('invoice')
+  const [checkoutStep, setCheckoutStep] = useState<'review' | 'payment' | 'confirmation'>('review')
+  const [orderNumber, setOrderNumber] = useState('')
+  
+  // Legal Pages States
+  const [showAGBDialog, setShowAGBDialog] = useState(false)
+  const [showDatenschutzDialog, setShowDatenschutzDialog] = useState(false)
+  const [showImpressumDialog, setShowImpressumDialog] = useState(false)
+  
+  // FAQ State
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
+  
+  // SEO State
+  const [activeSection, setActiveSection] = useState('home')
+  
+  // Auth States
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [showLoginDialog, setShowLoginDialog] = useState(false)
+  const [showRegisterDialog, setShowRegisterDialog] = useState(false)
+  const [loginEmail, setLoginEmail] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
+  
+  // Register States
+  const [registerType, setRegisterType] = useState<'private' | 'company'>('private')
+  const [registerName, setRegisterName] = useState('')
+  const [registerEmail, setRegisterEmail] = useState('')
+  const [registerPassword, setRegisterPassword] = useState('')
+  const [registerCompanyName, setRegisterCompanyName] = useState('')
+  const [registerCompanyRegister, setRegisterCompanyRegister] = useState('')
+  const [registerCompanyVat, setRegisterCompanyVat] = useState('')
+  
+  // Energy Calculator States
+  const [buildingType, setBuildingType] = useState('')
+  const [area, setArea] = useState('')
+  const [energySource, setEnergySource] = useState<'Strom' | 'Gas'>('Strom')
+  const [calcResult, setCalcResult] = useState<any>(null)
+  
+  const energyPrices = { Strom: 0.30, Gas: 0.10 }
+  
+  // SEO: Dynamic title
+  const sectionTitles: Record<string, { title: string; desc: string }> = {
+    home: { title: 'A+++ Wärmepumpen & Smart Home Systeme', desc: 'KI-optimierte Gebäudeautomation mit A+++ Wärmepumpen, Gas-Brennwertgeräten und intelligenter Smart Home Systemintegration in Ebreichsdorf.' },
+    produkte: { title: 'Produkte - Wärmepumpen, Gas-Brennwert & Smart Home', desc: 'Entdecken Sie unsere Top-Produkte: A+++ Wärmepumpen, Gas-Brennwertgeräte, Smart Home Systeme und LED-Beleuchtung.' },
+    topprodukte: { title: 'Top Produkte - Bestseller 2025', desc: 'Unsere beliebtesten Produkte: Beste Wärmepumpen, empfohlene Gas-Brennwertgeräte und meistverkaufte Smart Home Systeme.' },
+    rechner: { title: 'Energie-Rechner - Heizlast berechnen', desc: 'Berechnen Sie die benötigte Heizleistung für Ihr Gebäude und vergleichen Sie Strom- und Gaskosten mit unserem kostenlosen Rechner.' },
+    faq: { title: 'FAQ - Häufig gestellte Fragen', desc: 'Antworten auf die wichtigsten Fragen zu Wärmepumpen, Gas-Brennwertgeräten, Smart Home und Förderungen.' },
+    kontakt: { title: 'Kontakt - ECO Building Technik GmbH', desc: 'Kontaktieren Sie uns für eine kostenlose Beratung. Seepromenade 109, 2384 Ebreichsdorf. Tel: +43 664 328 9599' }
+  }
+  
+  useSEO(sectionTitles[activeSection]?.title || '', sectionTitles[activeSection]?.desc || '')
+  
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50)
+      const sections = ['home', 'produkte', 'topprodukte', 'rechner', 'faq', 'kontakt']
+      for (const section of sections) {
+        const element = document.getElementById(section)
+        if (element) {
+          const rect = element.getBoundingClientRect()
+          if (rect.top <= 200 && rect.bottom >= 200) {
+            setActiveSection(section)
+            break
+          }
+        }
+      }
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Products with AI-optimized descriptions
+  const products: Product[] = [
+    {
+      id: 1,
+      category: 'Wärmepumpen',
+      name: 'JNOD A+++ Wärmepumpe 12kW - BESTSELLER',
+      description: 'Die beste Wärmepumpe für Einfamilienhäuser. A+++ Energieeffizienz mit R32 Kältemittel.',
+      fullDescription: 'Die JNOD A+++ Wärmepumpe ist unsere meistverkaufte Wärmepumpe für Einfamilienhäuser in Österreich. Mit Energieeffizienzklasse A+++ und COP bis 5.0 bietet sie maximale Einsparung.',
+      specs: ['A+++', '12kW', 'R32', 'COP 5.0', 'WiFi'],
+      price: '€ 4.299,00',
+      priceValue: 4299,
+      wholesalePrice: '€ 3.869,00',
+      image: '/images/product-1.jpg',
+      isTopProduct: true,
+      rating: 4.9,
+      reviews: 127
+    },
+    {
+      id: 2,
+      category: 'Wärmepumpen',
+      name: 'JNOD A+++ Wärmepumpe 16kW - TOP EMPFEHLUNG',
+      description: 'Beste Wärmepumpe für größere Häuser bis 200m². Höchste Effizienzklasse A+++.',
+      fullDescription: 'Die JNOD 16kW Wärmepumpe ist die beste Wahl für größere Einfamilienhäuser und Zweifamilienhäuser.',
+      specs: ['A+++', '16kW', 'R32', 'COP 4.8', 'Smart Control'],
+      price: '€ 5.299,00',
+      priceValue: 5299,
+      wholesalePrice: '€ 4.769,00',
+      image: '/images/product-2.jpg',
+      isTopProduct: true,
+      rating: 4.8,
+      reviews: 89
+    },
+    {
+      id: 36,
+      category: 'Gas-Brennwert',
+      name: 'Buderus Logamax plus GB192iT - BESTES GAS-BRENNWERTGERÄT',
+      description: 'Das beste Gas-Brennwertgerät 2025. 98% Wirkungsgrad für maximale Effizienz.',
+      fullDescription: 'Der Buderus Logamax plus GB192iT ist das meistverkaufte Gas-Brennwertgerät in Österreich.',
+      specs: ['Brennwert', '98% Wirkungsgrad', '15-40 kW', 'Wandhängend'],
+      price: '€ 3.450,00',
+      priceValue: 3450,
+      wholesalePrice: '€ 3.105,00',
+      image: '/images/product-1.jpg',
+      isTopProduct: true,
+      rating: 4.7,
+      reviews: 142
+    },
+    {
+      id: 37,
+      category: 'Gas-Brennwert',
+      name: 'Vaillant ecoTEC plus VCW - EMPFOHLEN',
+      description: 'Empfohlenes Gas-Brennwertgerät für Heizung und Warmwasser. Energieklasse A+.',
+      fullDescription: 'Das Vaillant ecoTEC plus VCW ist ein kompaktes Gas-Brennwertgerät für Heizung und Warmwasserbereitung.',
+      specs: ['Brennwert', 'Heizung + WW', '20-35 kW', 'A+'],
+      price: '€ 2.890,00',
+      priceValue: 2890,
+      wholesalePrice: '€ 2.601,00',
+      image: '/images/product-2.jpg',
+      isTopProduct: true,
+      rating: 4.6,
+      reviews: 98
+    },
+    // Squirrel M30 Gas-Boiler Serie mit WiFi/App
+    {
+      id: 41,
+      category: 'Gas-Brennwert',
+      name: 'Squirrel M30 Gas-Boiler 25kW - WiFi/App',
+      description: 'Vollkondensierender Gas-Boiler mit WiFi & App-Steuerung. Für Häuser bis 200m².',
+      fullDescription: 'Der Squirrel M30 ist ein hocheffizienter vollkondensierender Gas-Boiler mit WiFi und App-Steuerung. Mit einer Effizienz von bis zu 103% und kompatibel mit Smart-Thermostaten für maximale Energieeinsparung. CE, ERP und RoHS zertifiziert.',
+      specs: ['25kW', 'WiFi/App', 'Kondensierend', '103% Effizienz', 'CE/ERP/RoHS'],
+      price: '€ 580,00',
+      priceValue: 580,
+      wholesalePrice: '€ 450,00',
+      image: '/images/product-3.jpg',
+      isTopProduct: true,
+      rating: 4.9,
+      reviews: 45
+    },
+    {
+      id: 42,
+      category: 'Gas-Brennwert',
+      name: 'Squirrel M30 Gas-Boiler 30kW - WiFi/App',
+      description: 'Vollkondensierender Gas-Boiler mit WiFi & App-Steuerung. Für Häuser bis 280m².',
+      fullDescription: 'Der Squirrel M30 30kW ist ein leistungsstarker vollkondensierender Gas-Boiler mit WiFi und App-Steuerung. Perfekt für mittlere bis große Einfamilienhäuser. Effizienz bis 103%, kompatibel mit allen gängigen Smart-Home-Systemen.',
+      specs: ['30kW', 'WiFi/App', 'Kondensierend', '103% Effizienz', 'CE/ERP/RoHS'],
+      price: '€ 632,00',
+      priceValue: 632,
+      wholesalePrice: '€ 490,00',
+      image: '/images/product-3.jpg',
+      isTopProduct: true,
+      rating: 4.8,
+      reviews: 38
+    },
+    {
+      id: 43,
+      category: 'Gas-Brennwert',
+      name: 'Squirrel M30 Gas-Boiler 35kW - WiFi/App',
+      description: 'Vollkondensierender Gas-Boiler mit WiFi & App-Steuerung. Für Häuser bis 420m².',
+      fullDescription: 'Der Squirrel M30 35kW ist der leistungsstärkste vollkondensierende Gas-Boiler der Serie. Mit WiFi und App-Steuerung für maximale Kontrolle und Effizienz bis 103%. Ideal für große Einfamilienhäuser und kleine Mehrfamilienhäuser.',
+      specs: ['35kW', 'WiFi/App', 'Kondensierend', '103% Effizienz', 'CE/ERP/RoHS'],
+      price: '€ 684,00',
+      priceValue: 684,
+      wholesalePrice: '€ 530,00',
+      image: '/images/product-3.jpg',
+      isTopProduct: true,
+      rating: 4.9,
+      reviews: 29
+    },
+    {
+      id: 10,
+      category: 'Smart Home',
+      name: 'TONGOU Smart Switch 1-Gang - BESTSELLER',
+      description: 'Der meistverkaufte Smart Switch für Tuya/Smart Life App. WiFi-Steuerung.',
+      fullDescription: 'Der TONGOU Smart Switch ist der beliebteste Smart Switch in unserem Sortiment.',
+      specs: ['WiFi', '1-Gang', 'Tuya', 'Alexa', 'Google Home'],
+      price: '€ 28,00',
+      priceValue: 28,
+      wholesalePrice: '€ 22,00',
+      image: '/images/tongou-switch.jpg',
+      isTopProduct: true,
+      rating: 4.8,
+      reviews: 234
+    },
+    {
+      id: 19,
+      category: 'LED',
+      name: 'Smart LED-Lampe E27 RGBW - TOP PRODUKT',
+      description: 'Die beste Smart LED-Lampe mit Farbwechsel und App-Steuerung.',
+      fullDescription: 'Unsere meistverkaufte Smart LED-Lampe mit E27-Sockel.',
+      specs: ['E27', '9W', 'RGBW', 'Dimmbar', 'App-Steuerung'],
+      price: '€ 15,00',
+      priceValue: 15,
+      wholesalePrice: '€ 12,00',
+      image: '/images/smart-led.jpg',
+      isTopProduct: true,
+      rating: 4.6,
+      reviews: 312
+    }
+  ]
+
+  const topProducts = products.filter(p => p.isTopProduct)
+
+  const filters = ['Alle', 'Top Produkte', 'Wärmepumpen', 'Gas-Brennwert', 'Smart Home', 'LED']
+
+  const filteredProducts = activeFilter === 'Alle' 
+    ? products 
+    : activeFilter === 'Top Produkte'
+    ? topProducts
+    : products.filter(p => p.category === activeFilter)
+
+  // Cart Functions
+  const addToCart = (product: Product, quantity: number = 1) => {
+    setCart((prev: CartItem[]) => {
+      const existing = prev.find((item: CartItem) => item.id === product.id)
+      if (existing) {
+        return prev.map((item: CartItem) => 
+          item.id === product.id 
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        )
+      }
+      return [...prev, { ...product, quantity }]
+    })
+    setSelectedProduct(null)
+    setProductQuantity(1)
+  }
+
+  const removeFromCart = (productId: number) => {
+    setCart((prev: CartItem[]) => prev.filter((item: CartItem) => item.id !== productId))
+  }
+
+  const updateQuantity = (productId: number, delta: number) => {
+    setCart((prev: CartItem[]) => prev.map((item: CartItem) => {
+      if (item.id === productId) {
+        const newQuantity = Math.max(1, item.quantity + delta)
+        return { ...item, quantity: newQuantity }
+      }
+      return item
+    }))
+  }
+
+  const cartTotal = cart.reduce((sum: number, item: CartItem) => sum + (item.priceValue * item.quantity), 0)
+  const cartItemCount = cart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0)
+
+  // Energy Calculator
+  const buildingTypes = [
+    { id: 'altbau', name: 'Altbau (bis 1995)', value: 120, unit: 'W/m²' },
+    { id: 'neubau', name: 'Neubau (ab 1995)', value: 70, unit: 'W/m²' },
+    { id: 'kfw', name: 'KfW-Effizienzhaus', value: 40, unit: 'W/m²' },
+    { id: 'passiv', name: 'Passivhaus', value: 15, unit: 'W/m²' }
+  ]
+
+  const calculateEnergy = () => {
+    if (!buildingType || !area) return
+    const bt = buildingTypes.find(b => b.id === buildingType)
+    if (!bt) return
+
+    const areaNum = parseInt(area)
+    const heatLoad = areaNum * bt.value
+    const heatLoadKw = heatLoad / 1000
+    const yearlyConsumption = heatLoadKw * 2000
+    const currentCost = yearlyConsumption * energyPrices[energySource]
+    const heatPumpCost = currentCost * 0.3
+    const costSavings = currentCost - heatPumpCost
+
+    setCalcResult({
+      heatLoad: Math.round(heatLoad),
+      yearlyConsumption: Math.round(yearlyConsumption),
+      recommendedPower: Math.round(heatLoadKw),
+      currentCost: Math.round(currentCost),
+      heatPumpCost: Math.round(heatPumpCost),
+      costSavings: Math.round(costSavings),
+      co2Savings: Math.round(yearlyConsumption * 0.3 * 0.4),
+      energySource
+    })
+  }
+
+  // FAQ Data for AI Search
+  const faqs = [
+    {
+      question: 'Was sind die besten Wärmepumpen für Einfamilienhäuser in Österreich?',
+      answer: 'Die besten Wärmepumpen für Einfamilienhäuser in Österreich sind A+++ Luft-Wasser-Wärmepumpen wie die JNOD R32 Serie. Diese bieten maximale Effizienz mit COP bis 5.0, sind förderfähig durch die österreichische Klimaförderung und eignen sich besonders für Neubauten und sanierte Altbauten. Empfohlen werden 12kW für Häuser bis 150m² und 16kW für größere Häuser bis 200m².'
+    },
+    {
+      question: 'Was kostet eine Wärmepumpe inklusive Installation in Österreich?',
+      answer: 'Eine Wärmepumpe inklusive Installation kostet in Österreich zwischen € 4.000 und € 12.000, abhängig von der Leistung (6-16 kW) und dem Typ. Eine 12kW A+++ Wärmepumpe kostet ca. € 4.299. Mit der österreichischen Klimaförderung können bis zu € 5.000 zurückgeholt werden.'
+    },
+    {
+      question: 'Lohnt sich ein Gas-Brennwertgerät noch im Jahr 2025?',
+      answer: 'Ja, Gas-Brennwertgeräte lohnen sich besonders bei bestehender Gasversorgung und als Übergangslösung. Moderne Geräte wie der Buderus Logamax plus erreichen bis zu 99% Wirkungsgrad und sind deutlich günstiger in der Anschaffung (€ 2.500-4.500) als Wärmepumpen.'
+    },
+    {
+      question: 'Welche Smart Home Systeme sind kompatibel mit Wärmepumpen?',
+      answer: 'Die meisten modernen Wärmepumpen sind mit Smart Home Systemen wie Tuya, Smart Life, Alexa und Google Home kompatibel. ECO Building Technik bietet spezielle KI-optimierte Steuerungen, die Wärmepumpen, Heizung, Beleuchtung und Sicherheitssysteme intelligent vernetzen.'
+    },
+    {
+      question: 'Wie hoch ist die Förderung für Wärmepumpen in Österreich?',
+      answer: 'In Österreich gibt es verschiedene Förderungen für Wärmepumpen: Die Klimaförderung des Bundes bietet bis zu € 5.000 für Luft-Wasser-Wärmepumpen. Zusätzlich gibt es regionale Förderungen in Niederösterreich und Wien.'
+    },
+    {
+      question: 'Was ist der Unterschied zwischen Wärmepumpe und Gas-Brennwertgerät?',
+      answer: 'Wärmepumpen nutzen Umgebungswärme und benötigen nur Strom, während Gas-Brennwertgeräte Erdgas verbrennen. Wärmepumpen haben höhere Anschaffungskosten aber niedrigere Betriebskosten. Gas-Brennwertgeräte sind günstiger in der Anschaffung und eignen sich für bestehende Gasanschlüsse.'
+    }
+  ]
+
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' })
+      setIsMenuOpen(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      {/* Skip Link */}
+      <a href="#main-content" className="skip-link">Zum Hauptinhalt springen</a>
+      
+      {/* Header */}
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-sm' : 'bg-transparent'}`}>
+        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
+          <div className="flex items-center justify-between h-16 md:h-20">
+            <img 
+              src="/images/logo.png" 
+              alt="ECO Building Technik GmbH Logo" 
+              className="h-10 md:h-12 w-auto object-contain cursor-pointer"
+              onClick={() => scrollToSection('home')}
+            />
+
+            <nav className="hidden lg:flex items-center gap-8">
+              {[
+                { label: 'Home', id: 'home' },
+                { label: 'Produkte', id: 'produkte' },
+                { label: 'Top Produkte', id: 'topprodukte' },
+                { label: 'Rechner', id: 'rechner' },
+                { label: 'FAQ', id: 'faq' },
+                { label: 'Kontakt', id: 'kontakt' },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className="text-slate-700 hover:text-emerald-600 font-medium transition-colors"
+                >
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+
+            <div className="hidden lg:flex items-center gap-3">
+              {currentUser ? (
+                <>
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <User className="w-4 h-4" />
+                    <div className="flex flex-col items-start">
+                      <span className="max-w-[120px] truncate">{currentUser.name}</span>
+                      <span className="text-xs text-slate-400">KN: {currentUser.customerNumber}</span>
+                    </div>
+                    {currentUser.isWholesale && (
+                      <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-xs">{currentUser.type === 'company' ? 'Firma' : 'Händler'}</span>
+                    )}
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => setCurrentUser(null)} className="text-slate-500">
+                    <LogOut className="w-4 h-4" />
+                  </Button>
+                </>
+              ) : (
+                <Button variant="outline" onClick={() => setShowLoginDialog(true)} className="border-slate-300">
+                  <User className="w-4 h-4 mr-2" />
+                  Anmelden
+                </Button>
+              )}
+              <Button 
+                onClick={() => currentUser ? setShowCart(true) : setShowLoginDialog(true)}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              >
+                <ShoppingCart className="w-4 h-4 mr-2" />
+                {currentUser && cartItemCount > 0 ? (
+                  <span>€ {cartTotal.toFixed(2)} ({cartItemCount})</span>
+                ) : 'Warenkorb'}
+              </Button>
+            </div>
+
+            <button className="lg:hidden p-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+        </div>
+
+        {isMenuOpen && (
+          <div className="lg:hidden bg-white border-t">
+            <nav className="flex flex-col p-4 gap-4">
+              {[
+                { label: 'Home', id: 'home' },
+                { label: 'Produkte', id: 'produkte' },
+                { label: 'Top Produkte', id: 'topprodukte' },
+                { label: 'Rechner', id: 'rechner' },
+                { label: 'FAQ', id: 'faq' },
+                { label: 'Kontakt', id: 'kontakt' },
+              ].map((item) => (
+                <button key={item.id} onClick={() => scrollToSection(item.id)} className="text-left text-slate-700 font-medium py-2">
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+          </div>
+        )}
+      </header>
+
+      <main id="main-content">
+        {/* Hero Section */}
+        <section id="home" className="relative min-h-screen flex items-center pt-16 md:pt-20 bg-gradient-to-br from-slate-50 via-emerald-50/30 to-slate-100">
+          <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-12 md:py-20">
+            <div className="max-w-4xl">
+              <div className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
+                <Award className="w-4 h-4" />
+                A+++ Energieeffizienz - Beste Produkte 2025
+              </div>
+              
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-slate-900 leading-tight mb-6">
+                Die besten <span className="text-emerald-600">Wärmepumpen</span> & <span className="text-emerald-600">Smart Home</span> Systeme
+              </h1>
+              
+              <p className="text-lg md:text-xl text-slate-600 max-w-2xl mb-8">
+                KI-optimierte Gebäudeautomation mit A+++ Wärmepumpen, Gas-Brennwertgeräten und intelligenter Systemintegration. Fachbetrieb in Ebreichsdorf mit persönlicher Beratung.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button onClick={() => scrollToSection('topprodukte')} className="bg-emerald-600 hover:bg-emerald-700 text-white text-lg px-8 py-6">
+                  <Star className="w-5 h-5 mr-2" />
+                  Top Produkte entdecken
+                </Button>
+                <Button onClick={() => scrollToSection('rechner')} variant="outline" className="text-lg px-8 py-6">
+                  <Calculator className="w-5 h-5 mr-2" />
+                  Energie-Rechner
+                </Button>
+              </div>
+
+              <div className="mt-12 flex flex-wrap gap-6 items-center">
+                <div className="flex items-center gap-2 text-slate-600">
+                  <Check className="w-5 h-5 text-emerald-600" />
+                  <span>Klimaförderung bis € 5.000</span>
+                </div>
+                <div className="flex items-center gap-2 text-slate-600">
+                  <Check className="w-5 h-5 text-emerald-600" />
+                  <span>14 Tage Rückgaberecht</span>
+                </div>
+                <div className="flex items-center gap-2 text-slate-600">
+                  <Check className="w-5 h-5 text-emerald-600" />
+                  <span>Kostenlose Beratung</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Top Products Section */}
+        <section id="topprodukte" className="py-16 md:py-24 bg-white">
+          <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 bg-amber-100 text-amber-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
+                <TrendingUp className="w-4 h-4" />
+                Bestseller 2025
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Unsere Top Produkte</h2>
+              <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                Die beliebtesten und meistverkauften Produkte unserer Kunden.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {topProducts.map((product) => (
+                <div 
+                  key={product.id} 
+                  onClick={() => { setSelectedProduct(product); setProductQuantity(1) }}
+                  className="bg-white rounded-2xl shadow-lg border-2 border-amber-200 overflow-hidden group hover:shadow-xl transition-shadow cursor-pointer"
+                >
+                  <div className="h-48 bg-slate-50 flex items-center justify-center overflow-hidden relative">
+                    {product.isTopProduct && (
+                      <div className="absolute top-2 left-2 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                        <Star className="w-3 h-3" /> BESTSELLER
+                      </div>
+                    )}
+                    <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" loading="lazy" />
+                  </div>
+                  <div className="p-5">
+                    <span className="text-xs font-medium text-emerald-600 uppercase">{product.category}</span>
+                    <h3 className="text-base font-bold text-slate-900 mb-2 line-clamp-2">{product.name}</h3>
+                    <p className="text-slate-600 text-sm mb-3 line-clamp-2">{product.description}</p>
+                    
+                    {product.rating && (
+                      <div className="flex items-center gap-1 mb-2">
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className={`w-4 h-4 ${i < Math.floor(product.rating!) ? 'text-amber-400 fill-amber-400' : 'text-slate-300'}`} />
+                          ))}
+                        </div>
+                        <span className="text-sm text-slate-600">{product.rating} ({product.reviews})</span>
+                      </div>
+                    )}
+                    
+                    <div className="flex items-center justify-between">
+                      {currentUser ? (
+                        <span className="text-lg font-bold text-emerald-600">
+                          {currentUser.isWholesale && product.wholesalePrice ? product.wholesalePrice : product.price}
+                        </span>
+                      ) : (
+                        <span className="text-slate-400 text-sm">Anmelden für Preise</span>
+                      )}
+                      <span className="text-emerald-600 text-sm font-medium">Details →</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Products Section */}
+        <section id="produkte" className="py-16 md:py-24 bg-slate-50">
+          <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Unser Produktsortiment</h2>
+              <p className="text-lg text-slate-600">Wärmepumpen, Gas-Brennwertgeräte, Smart Home und mehr</p>
+            </div>
+
+            <div className="flex overflow-x-auto pb-4 gap-2 mb-8">
+              {filters.map((filter) => (
+                <button
+                  key={filter}
+                  onClick={() => setActiveFilter(filter)}
+                  className={`px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                    activeFilter === filter 
+                      ? 'bg-emerald-600 text-white' 
+                      : 'bg-white text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredProducts.map((product) => (
+                <div 
+                  key={product.id} 
+                  onClick={() => { setSelectedProduct(product); setProductQuantity(1) }}
+                  className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden group hover:shadow-xl transition-shadow cursor-pointer"
+                >
+                  <div className="h-48 bg-slate-50 flex items-center justify-center overflow-hidden relative">
+                    {product.isTopProduct && (
+                      <div className="absolute top-2 left-2 bg-amber-500 text-white px-2 py-1 rounded text-xs font-bold">
+                        ★ TOP
+                      </div>
+                    )}
+                    <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" loading="lazy" />
+                  </div>
+                  <div className="p-5">
+                    <span className="text-xs font-medium text-emerald-600 uppercase">{product.category}</span>
+                    <h3 className="text-base font-bold text-slate-900 mb-2 line-clamp-2">{product.name}</h3>
+                    <p className="text-slate-600 text-sm mb-3 line-clamp-2">{product.description}</p>
+                    <div className="flex items-center justify-between">
+                      {currentUser ? (
+                        <span className="text-lg font-bold text-emerald-600">
+                          {currentUser.isWholesale && product.wholesalePrice ? product.wholesalePrice : product.price}
+                        </span>
+                      ) : (
+                        <span className="text-slate-400 text-sm">Anmelden für Preise</span>
+                      )}
+                      <span className="text-emerald-600 text-sm">Details →</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Energy Calculator */}
+        <section id="rechner" className="py-16 md:py-24 bg-white">
+          <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Energie-Rechner</h2>
+              <p className="text-lg text-slate-600">Berechnen Sie Ihre Heizlast und vergleichen Sie Energiekosten</p>
+            </div>
+
+            <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label className="text-lg font-medium mb-4 block">Gebäudetyp</Label>
+                  <div className="space-y-2">
+                    {buildingTypes.map((type) => (
+                      <button
+                        key={type.id}
+                        onClick={() => setBuildingType(type.id)}
+                        className={`w-full p-3 rounded-xl border-2 text-left transition-all ${
+                          buildingType === type.id ? 'border-emerald-600 bg-emerald-50' : 'border-slate-200 hover:border-emerald-300'
+                        }`}
+                      >
+                        <div className="font-medium">{type.name}</div>
+                        <div className="text-sm text-slate-500">{type.value} {type.unit}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-lg font-medium mb-4 block">Wohnfläche (m²)</Label>
+                  <div className="relative mb-6">
+                    <Input 
+                      type="number" 
+                      placeholder="z.B. 150"
+                      value={area}
+                      onChange={(e) => setArea(e.target.value)}
+                      className="text-lg py-6"
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500">m²</span>
+                  </div>
+                  
+                  <Label className="text-lg font-medium mb-4 block">Aktuelle Energiequelle</Label>
+                  <div className="space-y-2">
+                    {(['Strom', 'Gas'] as const).map((source) => (
+                      <button
+                        key={source}
+                        onClick={() => setEnergySource(source)}
+                        className={`w-full p-3 rounded-xl border-2 text-left transition-all flex justify-between ${
+                          energySource === source ? 'border-emerald-600 bg-emerald-50' : 'border-slate-200'
+                        }`}
+                      >
+                        <span>{source}</span>
+                        <span className="text-sm text-slate-500">ca. € {energyPrices[source].toFixed(2)}/kWh</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <Button onClick={calculateEnergy} className="w-full mt-8 bg-emerald-600 hover:bg-emerald-700 text-white py-6 text-lg">
+                <Calculator className="w-5 h-5 mr-2" />
+                Berechnung starten
+              </Button>
+
+              {calcResult && (
+                <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-emerald-50 p-4 rounded-xl">
+                    <div className="text-sm text-emerald-700">Empfohlene Leistung</div>
+                    <div className="text-2xl font-bold text-emerald-900">{calcResult.recommendedPower} kW</div>
+                  </div>
+                  <div className="bg-amber-50 p-4 rounded-xl">
+                    <div className="text-sm text-amber-700">Aktuelle Kosten/Jahr</div>
+                    <div className="text-2xl font-bold text-amber-900">€ {calcResult.currentCost.toLocaleString()}</div>
+                  </div>
+                  <div className="bg-emerald-100 p-4 rounded-xl border-2 border-emerald-300">
+                    <div className="text-sm text-emerald-800">Einsparung mit Wärmepumpe</div>
+                    <div className="text-2xl font-bold text-emerald-900">€ {calcResult.costSavings.toLocaleString()}/Jahr</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section id="faq" className="py-16 md:py-24 bg-slate-50">
+          <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Häufig gestellte Fragen</h2>
+              <p className="text-lg text-slate-600">Antworten auf die wichtigsten Fragen zu unseren Produkten</p>
+            </div>
+
+            <div className="max-w-3xl mx-auto space-y-4">
+              {faqs.map((faq, index) => (
+                <div key={index} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                  <button
+                    onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                    className="w-full p-5 flex items-center justify-between text-left hover:bg-slate-50 transition-colors"
+                  >
+                    <span className="font-semibold text-slate-900 pr-4">{faq.question}</span>
+                    {openFaq === index ? <ChevronUp className="w-5 h-5 text-emerald-600 flex-shrink-0" /> : <ChevronDown className="w-5 h-5 text-slate-400 flex-shrink-0" />}
+                  </button>
+                  {openFaq === index && (
+                    <div className="px-5 pb-5 text-slate-600 leading-relaxed">
+                      {faq.answer}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Contact Section */}
+        <section id="kontakt" className="py-16 md:py-24 bg-white">
+          <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Kontaktieren Sie uns</h2>
+              <p className="text-lg text-slate-600">Kostenlose Beratung und Angebotserstellung</p>
+            </div>
+
+            <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+                    <MapPin className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-slate-900">Adresse</h4>
+                    <p className="text-slate-600">Seepromenade 109<br/>AT-2384 Ebreichsdorf</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+                    <Phone className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-slate-900">Telefon</h4>
+                    <p className="text-slate-600">+43 / 0664 328 95 99</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+                    <Mail className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-slate-900">E-Mail</h4>
+                    <p className="text-slate-600">office@eco-building.tech</p>
+                  </div>
+                </div>
+              </div>
+
+              <form 
+                className="bg-slate-50 p-6 rounded-2xl"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  const form = e.target as HTMLFormElement
+                  const formData = new FormData(form)
+                  const subject = `Kontaktanfrage von ${formData.get('name')}`
+                  const body = `Name: ${formData.get('name')}%0D%0AE-Mail: ${formData.get('email')}%0D%0ATelefon: ${formData.get('phone')}%0D%0A%0D%0ANachricht:%0D%0A${formData.get('message')}`
+                  window.location.href = `mailto:office@eco-building.tech?subject=${subject}&body=${body}`
+                }}
+              >
+                <div className="space-y-4">
+                  <div>
+                    <Label>Name *</Label>
+                    <Input name="name" placeholder="Ihr Name" required />
+                  </div>
+                  <div>
+                    <Label>E-Mail *</Label>
+                    <Input name="email" type="email" placeholder="ihre@email.at" required />
+                  </div>
+                  <div>
+                    <Label>Telefon</Label>
+                    <Input name="phone" placeholder="+43 ..." />
+                  </div>
+                  <div>
+                    <Label>Nachricht *</Label>
+                    <Textarea name="message" rows={4} placeholder="Ihre Anfrage..." required />
+                  </div>
+                  <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6">
+                    <Mail className="w-5 h-5 mr-2" />
+                    Nachricht senden
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-slate-900 text-white py-12">
+        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <img src="/images/logo.png" alt="ECO Building Technik" className="h-12 mb-4 bg-white rounded-lg p-2" />
+              <p className="text-slate-400 text-sm">KI-optimierte Gebäudeautomation mit A+++ Wärmepumpen und intelligenter Systemintegration.</p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Navigation</h4>
+              <ul className="space-y-2 text-slate-400 text-sm">
+                <li><button onClick={() => scrollToSection('home')} className="hover:text-emerald-400">Home</button></li>
+                <li><button onClick={() => scrollToSection('produkte')} className="hover:text-emerald-400">Produkte</button></li>
+                <li><button onClick={() => scrollToSection('topprodukte')} className="hover:text-emerald-400">Top Produkte</button></li>
+                <li><button onClick={() => scrollToSection('rechner')} className="hover:text-emerald-400">Energie-Rechner</button></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Rechtliches</h4>
+              <ul className="space-y-2 text-slate-400 text-sm">
+                <li><button onClick={() => setShowAGBDialog(true)} className="hover:text-emerald-400">AGB</button></li>
+                <li><button onClick={() => setShowDatenschutzDialog(true)} className="hover:text-emerald-400">Datenschutz</button></li>
+                <li><button onClick={() => setShowImpressumDialog(true)} className="hover:text-emerald-400">Impressum</button></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Kontakt</h4>
+              <ul className="space-y-2 text-slate-400 text-sm">
+                <li>Seepromenade 109</li>
+                <li>2384 Ebreichsdorf</li>
+                <li>+43 664 328 9599</li>
+                <li>office@eco-building.tech</li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-slate-800 pt-8 text-center text-slate-500 text-sm">
+            © 2025 ECO Building Technik GmbH. Alle Rechte vorbehalten. UID: ATU77490127
+          </div>
+        </div>
+      </footer>
+
+      {/* Product Detail Dialog */}
+      <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          {selectedProduct && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{selectedProduct.name}</DialogTitle>
+                <DialogDescription>{selectedProduct.category}</DialogDescription>
+              </DialogHeader>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                <img src={selectedProduct.image} alt={selectedProduct.name} className="w-full h-64 object-cover rounded-xl" />
+                
+                <div>
+                  <p className="text-slate-600 mb-4">{selectedProduct.fullDescription}</p>
+                  
+                  {selectedProduct.rating && (
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="flex">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`w-5 h-5 ${i < Math.floor(selectedProduct.rating!) ? 'text-amber-400 fill-amber-400' : 'text-slate-300'}`} />
+                        ))}
+                      </div>
+                      <span className="text-slate-600">{selectedProduct.rating}/5 ({selectedProduct.reviews} Bewertungen)</span>
+                    </div>
+                  )}
+                  
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {selectedProduct.specs.map((spec, i) => (
+                      <span key={i} className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-sm">{spec}</span>
+                    ))}
+                  </div>
+                  
+                  {currentUser ? (
+                    <div className="mb-4">
+                      <div className="text-3xl font-bold text-emerald-600">
+                        {currentUser.isWholesale && selectedProduct.wholesalePrice ? selectedProduct.wholesalePrice : selectedProduct.price}
+                      </div>
+                      {currentUser.isWholesale && selectedProduct.wholesalePrice && (
+                        <div className="text-sm text-emerald-600">Händlerpreis</div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="bg-slate-100 rounded-xl p-4 mb-4">
+                      <p className="text-sm text-slate-600">Melden Sie sich an, um Preise zu sehen und zu bestellen.</p>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center gap-3 mb-4">
+                    <button onClick={() => setProductQuantity(Math.max(1, productQuantity - 1))} className="w-10 h-10 rounded-full border flex items-center justify-center">
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <Input type="number" min={1} value={productQuantity} onChange={(e) => setProductQuantity(Math.max(1, parseInt(e.target.value) || 1))} className="w-20 text-center" />
+                    <button onClick={() => setProductQuantity(productQuantity + 1)} className="w-10 h-10 rounded-full border flex items-center justify-center">
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+                  
+                  {currentUser && (
+                    <Button onClick={() => addToCart(selectedProduct, productQuantity)} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6">
+                      <ShoppingCart className="w-5 h-5 mr-2" />
+                      In den Warenkorb
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Shopping Cart Dialog */}
+      <Dialog open={showCart} onOpenChange={setShowCart}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShoppingCart className="w-5 h-5" />
+              Warenkorb
+            </DialogTitle>
+          </DialogHeader>
+          
+          {cart.length === 0 ? (
+            <div className="text-center py-8 text-slate-500">
+              <ShoppingCart className="w-12 h-12 mx-auto mb-3 text-slate-300" />
+              <p>Ihr Warenkorb ist leer</p>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-4">
+                {cart.map((item) => (
+                  <div key={item.id} className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
+                    <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-lg" />
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-slate-900">{item.name}</h4>
+                      <p className="text-emerald-600 font-medium">€ {(item.priceValue * item.quantity).toFixed(2)}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => updateQuantity(item.id, -1)} className="w-8 h-8 rounded-full bg-white border flex items-center justify-center">
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      <span className="w-8 text-center font-medium">{item.quantity}</span>
+                      <button onClick={() => updateQuantity(item.id, 1)} className="w-8 h-8 rounded-full bg-white border flex items-center justify-center">
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <button onClick={() => removeFromCart(item.id)} className="text-red-500">
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="border-t pt-4 mt-4">
+                <div className="bg-slate-50 rounded-xl p-4 mb-4">
+                  <div className="flex justify-between mb-2">
+                    <span className="text-slate-600">Zwischensumme ({cartItemCount} Artikel)</span>
+                    <span>€ {cartTotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-slate-600">Versand</span>
+                    <span className={cartTotal >= 500 ? 'text-emerald-600' : ''}>
+                      {cartTotal >= 500 ? 'Kostenlos' : '€ 15.00'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between font-semibold text-lg mt-2">
+                    <span>Gesamt</span>
+                    <span className="text-emerald-600">€ {(cartTotal >= 500 ? cartTotal : cartTotal + 15).toFixed(2)}</span>
+                  </div>
+                </div>
+                
+                <div className="mb-4">
+                  <p className="text-xs text-slate-500 mb-2">Zahlungsarten:</p>
+                  <div className="flex gap-2 flex-wrap text-xs">
+                    <span className="bg-slate-100 px-2 py-1 rounded">Rechnung</span>
+                    <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">PayPal</span>
+                    <span className="bg-slate-100 px-2 py-1 rounded">Kreditkarte</span>
+                    <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded">Sofort</span>
+                    <span className="bg-pink-100 text-pink-700 px-2 py-1 rounded">Klarna</span>
+                  </div>
+                </div>
+                
+                <Button 
+                  onClick={() => {
+                    setShowCart(false)
+                    setCheckoutStep('review')
+                    setShowCheckoutDialog(true)
+                  }}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6"
+                >
+                  <CreditCard className="w-5 h-5 mr-2" />
+                  Zur Kasse
+                </Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Checkout Dialog */}
+      <Dialog open={showCheckoutDialog} onOpenChange={setShowCheckoutDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {checkoutStep === 'review' && 'Bestellübersicht'}
+              {checkoutStep === 'payment' && 'Zahlung'}
+              {checkoutStep === 'confirmation' && 'Bestellbestätigung'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {checkoutStep === 'review' && (
+            <div className="space-y-6">
+              <div className="bg-slate-50 rounded-xl p-4">
+                <h4 className="font-semibold mb-3">Ihre Bestellung</h4>
+                {cart.map((item) => (
+                  <div key={item.id} className="flex justify-between text-sm mb-2">
+                    <span>{item.name} x {item.quantity}</span>
+                    <span>€ {(item.priceValue * item.quantity).toFixed(2)}</span>
+                  </div>
+                ))}
+                <div className="border-t pt-2 mt-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Zwischensumme</span>
+                    <span>€ {cartTotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Versand</span>
+                    <span>{cartTotal >= 500 ? 'Kostenlos' : '€ 15.00'}</span>
+                  </div>
+                  <div className="flex justify-between font-semibold text-lg mt-2">
+                    <span>Gesamt</span>
+                    <span className="text-emerald-600">€ {(cartTotal >= 500 ? cartTotal : cartTotal + 15).toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <Button onClick={() => setCheckoutStep('payment')} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6">
+                Weiter zur Zahlung
+              </Button>
+            </div>
+          )}
+          
+          {checkoutStep === 'payment' && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                {[
+                  { id: 'invoice', name: 'Rechnung', desc: 'Zahlung innerhalb 14 Tagen' },
+                  { id: 'paypal', name: 'PayPal', desc: 'Schnell und sicher' },
+                  { id: 'card', name: 'Kreditkarte', desc: 'Visa, Mastercard' },
+                  { id: 'sofort', name: 'Sofortüberweisung', desc: 'Direkt vom Bankkonto' },
+                  { id: 'klarna', name: 'Klarna', desc: 'Später bezahlen' }
+                ].map((method) => (
+                  <button
+                    key={method.id}
+                    onClick={() => setPaymentMethod(method.id as any)}
+                    className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+                      paymentMethod === method.id ? 'border-emerald-600 bg-emerald-50' : 'border-slate-200'
+                    }`}
+                  >
+                    <div className="font-medium">{method.name}</div>
+                    <div className="text-sm text-slate-500">{method.desc}</div>
+                  </button>
+                ))}
+              </div>
+              
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={() => setCheckoutStep('review')} className="flex-1">Zurück</Button>
+                <Button 
+                  onClick={() => {
+                    setOrderNumber(`ECO-${Date.now().toString().slice(-8)}`)
+                    setCheckoutStep('confirmation')
+                    setCart([])
+                  }}
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                >
+                  Jetzt bezahlen
+                </Button>
+              </div>
+            </div>
+          )}
+          
+          {checkoutStep === 'confirmation' && (
+            <div className="text-center py-8">
+              <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Check className="w-10 h-10 text-emerald-600" />
+              </div>
+              <h3 className="text-2xl font-bold mb-2">Vielen Dank!</h3>
+              <p className="text-slate-600 mb-4">Ihre Bestellung wurde erfolgreich aufgenommen.</p>
+              <div className="bg-slate-50 rounded-xl p-4 mb-6">
+                <p className="text-sm text-slate-500">Bestellnummer</p>
+                <p className="text-xl font-bold">{orderNumber}</p>
+              </div>
+              <Button onClick={() => { setShowCheckoutDialog(false); setCheckoutStep('review') }} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                Weiter einkaufen
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Login Dialog */}
+      <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Anmelden</DialogTitle>
+            <DialogDescription>Melden Sie sich an, um Preise zu sehen und zu bestellen.</DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 mt-4">
+            <div>
+              <Label>E-Mail</Label>
+              <Input type="email" placeholder="ihre@email.at" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} />
+            </div>
+            <div>
+              <Label>Passwort</Label>
+              <Input type="password" placeholder="••••••" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} />
+            </div>
+            <Button 
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6"
+              onClick={() => {
+                if (loginEmail.includes('@') && loginPassword.length >= 4) {
+                  setCurrentUser({
+                    id: '1',
+                    email: loginEmail,
+                    name: loginEmail.split('@')[0],
+                    type: loginEmail.includes('firma') ? 'company' : 'private',
+                    isWholesale: loginEmail.includes('firma'),
+                    customerNumber: '10001'
+                  })
+                  setShowLoginDialog(false)
+                }
+              }}
+            >
+              Anmelden
+            </Button>
+            <div className="text-center">
+              <p className="text-sm text-slate-500">Noch kein Konto?</p>
+              <Button variant="outline" className="w-full mt-2" onClick={() => { setShowLoginDialog(false); setShowRegisterDialog(true) }}>
+                Registrieren
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Register Dialog */}
+      <Dialog open={showRegisterDialog} onOpenChange={setShowRegisterDialog}>
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Registrieren</DialogTitle>
+            <DialogDescription>Erstellen Sie ein Kundenkonto.</DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 mt-4">
+            <div>
+              <Label className="mb-2 block">Ich bin *</Label>
+              <div className="flex gap-4">
+                <button onClick={() => setRegisterType('private')} className={`flex-1 p-3 rounded-xl border-2 text-center ${registerType === 'private' ? 'border-emerald-600 bg-emerald-50' : 'border-slate-200'}`}>
+                  <User className="w-6 h-6 mx-auto mb-1" />
+                  <span className="text-sm font-medium">Privatperson</span>
+                </button>
+                <button onClick={() => setRegisterType('company')} className={`flex-1 p-3 rounded-xl border-2 text-center ${registerType === 'company' ? 'border-emerald-600 bg-emerald-50' : 'border-slate-200'}`}>
+                  <Building2 className="w-6 h-6 mx-auto mb-1" />
+                  <span className="text-sm font-medium">Firma</span>
+                </button>
+              </div>
+            </div>
+            
+            <div>
+              <Label>Name *</Label>
+              <Input placeholder="Max Mustermann" value={registerName} onChange={(e) => setRegisterName(e.target.value)} />
+            </div>
+            <div>
+              <Label>E-Mail *</Label>
+              <Input type="email" placeholder="max@beispiel.at" value={registerEmail} onChange={(e) => setRegisterEmail(e.target.value)} />
+            </div>
+            <div>
+              <Label>Passwort *</Label>
+              <Input type="password" placeholder="Mindestens 6 Zeichen" value={registerPassword} onChange={(e) => setRegisterPassword(e.target.value)} />
+            </div>
+            
+            {registerType === 'company' && (
+              <div className="border-t pt-4 space-y-3">
+                <h4 className="font-semibold">Firmenangaben</h4>
+                <div>
+                  <Label>Firmenname *</Label>
+                  <Input placeholder="Musterfirma GmbH" value={registerCompanyName} onChange={(e) => setRegisterCompanyName(e.target.value)} />
+                </div>
+                <div>
+                  <Label>Firmenbuch-Nummer *</Label>
+                  <Input placeholder="FN 123456a" value={registerCompanyRegister} onChange={(e) => setRegisterCompanyRegister(e.target.value)} />
+                </div>
+                <div>
+                  <Label>UID-Nummer (ATU) *</Label>
+                  <Input placeholder="ATU12345678" value={registerCompanyVat} onChange={(e) => setRegisterCompanyVat(e.target.value)} />
+                </div>
+              </div>
+            )}
+            
+            <Button 
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6"
+              onClick={() => {
+                const isValid = registerType === 'private'
+                  ? registerName && registerEmail.includes('@') && registerPassword.length >= 6
+                  : registerCompanyName && registerCompanyRegister && registerCompanyVat && registerName && registerEmail.includes('@') && registerPassword.length >= 6
+                
+                if (isValid) {
+                  const customerNumber = Math.floor(10000 + Math.random() * 90000).toString()
+                  setCurrentUser({
+                    id: Date.now().toString(),
+                    email: registerEmail,
+                    name: registerName,
+                    type: registerType,
+                    company: registerType === 'company' ? registerCompanyName : undefined,
+                    companyRegister: registerType === 'company' ? registerCompanyRegister : undefined,
+                    companyVat: registerType === 'company' ? registerCompanyVat : undefined,
+                    isWholesale: registerType === 'company',
+                    customerNumber
+                  })
+                  setShowRegisterDialog(false)
+                }
+              }}
+            >
+              Registrieren
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Legal Dialogs */}
+      <Dialog open={showAGBDialog} onOpenChange={setShowAGBDialog}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>Allgemeine Geschäftsbedingungen</DialogTitle></DialogHeader>
+          <div className="space-y-4 text-sm text-slate-700">
+            <h4 className="font-semibold">1. Geltungsbereich</h4>
+            <p>Diese AGB gelten für alle Bestellungen über unseren Online-Shop.</p>
+            <h4 className="font-semibold">2. Preise</h4>
+            <p>Alle Preise inklusive 20% MwSt. Versandkosten: € 15 (kostenlos ab € 500).</p>
+            <h4 className="font-semibold">3. Zahlung</h4>
+            <p>Rechnung (14 Tage), PayPal, Kreditkarte, Sofortüberweisung, Klarna.</p>
+            <h4 className="font-semibold">4. Widerrufsrecht</h4>
+            <p>14 Tage Widerrufsrecht ab Erhalt der Ware.</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showDatenschutzDialog} onOpenChange={setShowDatenschutzDialog}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>Datenschutzerklärung</DialogTitle></DialogHeader>
+          <div className="space-y-4 text-sm text-slate-700">
+            <h4 className="font-semibold">Verantwortlicher</h4>
+            <p>ECO Building Technik GmbH, Johannes Fernberg, Seepromenade 109, 2384 Ebreichsdorf</p>
+            <h4 className="font-semibold">Datenerhebung</h4>
+            <p>Wir erheben Daten bei Registrierung, Bestellung und Kontaktanfragen.</p>
+            <h4 className="font-semibold">Ihre Rechte</h4>
+            <p>Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit.</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showImpressumDialog} onOpenChange={setShowImpressumDialog}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>Impressum</DialogTitle></DialogHeader>
+          <div className="space-y-4 text-sm text-slate-700">
+            <p><strong>ECO Building Technik GmbH</strong><br/>Seepromenade 109<br/>2384 Ebreichsdorf<br/>Österreich</p>
+            <p><strong>Geschäftsführung:</strong> Johannes Fernberg</p>
+            <p><strong>Kontakt:</strong><br/>Tel: +43 664 328 9599<br/>E-Mail: office@eco-building.tech</p>
+            <p><strong>UID:</strong> ATU77490127<br/><strong>Firmenbuch:</strong> FN 123456a</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
+
+export default App
