@@ -1,4 +1,19 @@
-# React + TypeScript + Vite
+# ECO Building Technik
+
+Website für ECO Building Technik GmbH – nachhaltige Gebäudetechnik (Wärmepumpen, Gas-Brennwert, Smart Home).
+
+## Deployment auf Vercel
+
+1. Gehe zu [vercel.com](https://vercel.com) und melde dich an
+2. Klicke **Add New** → **Project**
+3. Wähle **Import Git Repository** und verbinde dein GitHub-Konto
+4. Wähle das Repo **Laszlo23/eco-building-technik**
+5. Vercel erkennt Vite automatisch – klicke **Deploy**
+6. Optional: **Environment Variables** setzen: `VITE_FORMSPREE_ID` für Lead-Erfassung
+
+---
+
+## React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
