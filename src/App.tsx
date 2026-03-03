@@ -1191,48 +1191,52 @@ function App() {
 
       <main id="main-content" role="main">
         {/* Hero Section */}
-        <section id="home" className="relative min-h-screen flex items-center pt-16 md:pt-20 bg-gradient-to-br from-slate-50 via-emerald-50/30 to-slate-100">
-          <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-12 md:py-20">
+        <section id="home" className="relative min-h-screen flex items-center pt-16 md:pt-20 overflow-hidden">
+          {/* Background image */}
+          <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/images/hero-smarthome.png)' }} aria-hidden="true" />
+          {/* Overlay for text readability - lighter to show image */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/50 via-slate-900/35 to-slate-900/20" aria-hidden="true" />
+          <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-12 md:py-20">
             <div className="max-w-4xl">
-              <div className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <div className="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-4 py-2 rounded-full text-sm font-medium mb-6">
                 <Award className="w-4 h-4" />
                 A+++ Energieeffizienz - Beste Produkte 2025
               </div>
               
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-slate-900 leading-tight mb-6">
-                <span className="text-emerald-600">A+++</span> Geräte für nachhaltige Gebäudetechnik
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+                <span className="text-emerald-400">A+++</span> Geräte für nachhaltige Gebäudetechnik
               </h1>
               
-              <p className="text-lg md:text-xl text-slate-600 max-w-2xl mb-8">
+              <p className="text-lg md:text-xl text-slate-200 max-w-2xl mb-8">
                 KI-optimierte Gebäudeautomation mit A+++ Wärmepumpen, Gas-Brennwertgeräten und intelligenter Systemintegration. Fachbetrieb in Ebreichsdorf mit persönlicher Beratung.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 flex-wrap">
-                <Button onClick={() => scrollToSection('produkte')} className="bg-emerald-600 hover:bg-emerald-700 text-white text-lg px-8 py-6">
+                <Button onClick={() => scrollToSection('produkte')} className="bg-emerald-600 hover:bg-emerald-500 text-white text-lg px-8 py-6">
                   <Star className="w-5 h-5 mr-2" />
                   Produkte entdecken
                 </Button>
-                <Button onClick={openConfigurator} variant="outline" className="text-lg px-8 py-6 border-emerald-600 text-emerald-600 hover:bg-emerald-50">
+                <Button onClick={openConfigurator} variant="outline" className="text-lg px-8 py-6 border-white/60 text-white hover:bg-white/10 hover:border-white">
                   <Settings2 className="w-5 h-5 mr-2" />
                   Smart Home konfigurieren
                 </Button>
-                <Button onClick={() => scrollToSection('rechner')} variant="outline" className="text-lg px-8 py-6">
+                <Button onClick={() => scrollToSection('rechner')} variant="outline" className="text-lg px-8 py-6 border-white/60 text-white hover:bg-white/10 hover:border-white">
                   <Calculator className="w-5 h-5 mr-2" />
                   Energie-Rechner
                 </Button>
               </div>
 
               <div className="mt-12 flex flex-wrap gap-6 items-center">
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Check className="w-5 h-5 text-emerald-600" />
+                <div className="flex items-center gap-2 text-slate-200">
+                  <Check className="w-5 h-5 text-emerald-400" />
                   <span>Klimaförderung bis € 5.000</span>
                 </div>
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Check className="w-5 h-5 text-emerald-600" />
+                <div className="flex items-center gap-2 text-slate-200">
+                  <Check className="w-5 h-5 text-emerald-400" />
                   <span>14 Tage Rückgaberecht</span>
                 </div>
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Check className="w-5 h-5 text-emerald-600" />
+                <div className="flex items-center gap-2 text-slate-200">
+                  <Check className="w-5 h-5 text-emerald-400" />
                   <span>Kostenlose Beratung</span>
                 </div>
               </div>
