@@ -80,7 +80,6 @@ const useSEO = (title: string, description?: string) => {
 function App() {
   // UI States
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isScrolled, setIsScrolled] = useState(false)
   const [activeFilter, setActiveFilter] = useState('Alle')
   const [cart, setCart] = useState<CartItem[]>([])
   const [showCart, setShowCart] = useState(false)
@@ -245,7 +244,6 @@ function App() {
   
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
       const sections = ['home', 'produkte', 'rechner', 'faq', 'blog', 'kontakt']
       for (const section of sections) {
         const element = document.getElementById(section)
@@ -1081,7 +1079,7 @@ function App() {
       <a href="#main-content" className="skip-link">Zum Hauptinhalt springen</a>
       
       {/* Header */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-sm' : 'bg-transparent'}`} role="banner">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm" role="banner">
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="flex items-center justify-between h-16 md:h-20">
             <button 
@@ -1216,11 +1214,11 @@ function App() {
                   <Star className="w-5 h-5 mr-2" />
                   Produkte entdecken
                 </Button>
-                <Button onClick={openConfigurator} variant="outline" className="text-lg px-8 py-6 border-white/60 text-white hover:bg-white/10 hover:border-white">
+                <Button onClick={openConfigurator} variant="outline" className="text-lg px-8 py-6 bg-transparent border-2 border-white text-white hover:bg-white/20 hover:border-white">
                   <Settings2 className="w-5 h-5 mr-2" />
                   Smart Home konfigurieren
                 </Button>
-                <Button onClick={() => scrollToSection('rechner')} variant="outline" className="text-lg px-8 py-6 border-white/60 text-white hover:bg-white/10 hover:border-white">
+                <Button onClick={() => scrollToSection('rechner')} variant="outline" className="text-lg px-8 py-6 bg-transparent border-2 border-white text-white hover:bg-white/20 hover:border-white">
                   <Calculator className="w-5 h-5 mr-2" />
                   Energie-Rechner
                 </Button>
