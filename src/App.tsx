@@ -5,7 +5,8 @@ import {
   ShoppingCart, Trash2, Plus, Minus,
   User, LogOut, CreditCard, Check,
   ChevronDown, ChevronUp, Award, Star, TrendingUp,
-  Home, Package, HelpCircle, Gift, Send,
+  Home, Package, HelpCircle, Gift, Send, BookOpen,
+  Settings2, ChevronRight, ChevronLeft,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -50,6 +51,19 @@ interface User {
   companyVat?: string
   isWholesale: boolean
   customerNumber: string
+}
+
+// Smart Home Configurator: map product to category
+const getConfiguratorCategory = (product: { name: string; category: string }): string => {
+  const n = product.name.toLowerCase()
+  if (n.includes('gateway') || n.includes('hub')) return 'Gateway'
+  if (n.includes('socket') || n.includes('steckdose')) return 'Steckdosen'
+  if (product.category === 'Beleuchtung') return 'Beleuchtung'
+  if (n.includes('thermostat')) return 'Thermostat'
+  if (n.includes('curtain') || n.includes('rolladen')) return 'Rolladen'
+  if (n.includes('switch') || n.includes('gang') || n.includes('dimmer')) return 'Lichtschalter'
+  if (n.includes('scene') || n.includes('ir') || n.includes('dry contact')) return 'Sonstiges'
+  return 'Sonstiges'
 }
 
 // SEO Hook
@@ -124,14 +138,21 @@ function App() {
   const [energySource, setEnergySource] = useState<'Strom' | 'Gas'>('Strom')
   const [calcResult, setCalcResult] = useState<any>(null)
   
+  // Smart Home Configurator States
+  const [showConfigurator, setShowConfigurator] = useState(false)
+  const [configItems, setConfigItems] = useState<{ product: Product; quantity: number }[]>([])
+  const [configStep, setConfigStep] = useState<1 | 2 | 3 | 4>(1)
+  const [configCategoryTab, setConfigCategoryTab] = useState<string>('Lichtschalter')
+  
   const energyPrices = { Strom: 0.30, Gas: 0.10 }
   
   // Formspree ID für Lead-Erfassung - in .env: VITE_FORMSPREE_ID=your_id
   const formspreeId = import.meta.env.VITE_FORMSPREE_ID as string | undefined
   
-  const openAngebotDialog = (product?: Product | null) => {
+  const openAngebotDialog = (product?: Product | null, prefillMessage?: string) => {
     setAngebotProduct(product || null)
-    setAngebotForm({ name: '', email: '', phone: '', message: product ? `Ich interessiere mich für: ${product.name}\n\n` : '' })
+    const msg = prefillMessage ?? (product ? `Ich interessiere mich für: ${product.name}\n\n` : '')
+    setAngebotForm({ name: '', email: '', phone: '', message: msg })
     setAngebotStatus('idle')
     setShowAngebotDialog(true)
   }
@@ -216,7 +237,8 @@ function App() {
     produkte: { title: 'Produkte - Wärmepumpen, Gas-Brennwert & Smart Home', desc: 'Entdecken Sie unsere Top-Produkte: A+++ Wärmepumpen, Gas-Brennwertgeräte, Smart Home Systeme und LED-Beleuchtung.' },
     rechner: { title: 'Energie-Rechner - Heizlast berechnen', desc: 'Berechnen Sie die benötigte Heizleistung für Ihr Gebäude und vergleichen Sie Strom- und Gaskosten mit unserem kostenlosen Rechner.' },
     faq: { title: 'FAQ - Häufig gestellte Fragen', desc: 'Antworten auf die wichtigsten Fragen zu Wärmepumpen, Gas-Brennwertgeräten, Smart Home und Förderungen.' },
-    kontakt: { title: 'Kontakt - ECO Building Technik GmbH', desc: 'Kontaktieren Sie uns für eine kostenlose Beratung. Seepromenade 109, 2384 Ebreichsdorf. Tel: +43 664 328 9599' }
+    kontakt: { title: 'Kontakt - ECO Building Technik GmbH', desc: 'Kontaktieren Sie uns für eine kostenlose Beratung. Seepromenade 109, 2384 Ebreichsdorf. Tel: +43 664 328 9599' },
+    blog: { title: 'Blog - Ratgeber Wärmepumpen & Smart Home | ECO Building Technik', desc: 'Expertenwissen zu A+++ Wärmepumpen, Gas-Brennwert, Smart Home und Photovoltaik. Kaufberatung, Förderungen und Tipps vom Fachbetrieb.' }
   }
   
   useSEO(sectionTitles[activeSection]?.title || '', sectionTitles[activeSection]?.desc || '')
@@ -224,7 +246,7 @@ function App() {
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50)
-      const sections = ['home', 'produkte', 'rechner', 'faq', 'kontakt']
+      const sections = ['home', 'produkte', 'rechner', 'faq', 'blog', 'kontakt']
       for (const section of sections) {
         const element = document.getElementById(section)
         if (element) {
@@ -928,6 +950,62 @@ function App() {
   const cartTotal = cart.reduce((sum: number, item: CartItem) => sum + (item.priceValue * item.quantity), 0)
   const cartItemCount = cart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0)
 
+  // Smart Home Configurator: products (Smart Home + Beleuchtung)
+  const configuratorProducts = products.filter(
+    p => p.category === 'Smart Home' || p.category === 'Beleuchtung'
+  )
+  const configCategories = ['Lichtschalter', 'Steckdosen', 'Beleuchtung', 'Thermostat', 'Rolladen', 'Gateway', 'Sonstiges']
+  const productsByConfigCategory = configCategories.reduce((acc, cat) => {
+    acc[cat] = configuratorProducts.filter(p => getConfiguratorCategory(p) === cat)
+    return acc
+  }, {} as Record<string, Product[]>)
+
+  const addConfigItem = (product: Product, quantity: number = 1) => {
+    setConfigItems(prev => {
+      const existing = prev.find(x => x.product.id === product.id)
+      if (existing) {
+        return prev.map(x => x.product.id === product.id ? { ...x, quantity: x.quantity + quantity } : x)
+      }
+      return [...prev, { product, quantity }]
+    })
+  }
+  const updateConfigQuantity = (productId: number, delta: number) => {
+    setConfigItems(prev => prev.map(x => {
+      if (x.product.id !== productId) return x
+      const q = Math.max(0, x.quantity + delta)
+      return q === 0 ? null : { ...x, quantity: q }
+    }).filter(Boolean) as { product: Product; quantity: number }[])
+  }
+  const removeConfigItem = (productId: number) => {
+    setConfigItems(prev => prev.filter(x => x.product.id !== productId))
+  }
+  const getConfigQuantity = (productId: number) => configItems.find(x => x.product.id === productId)?.quantity ?? 0
+  const configTotal = configItems.reduce((sum, x) => sum + x.product.priceValue * x.quantity, 0)
+  const hasGirierProducts = configItems.some(x => x.product.name.includes('GIRIER'))
+  const hasHub = configItems.some(x => x.product.name.includes('Gateway') || x.product.name.includes('Hub'))
+  const girierHub = products.find(p => p.name.includes('GIRIER') && (p.name.includes('Gateway') || p.name.includes('Hub')))
+
+  const openConfigurator = () => {
+    setConfigItems([])
+    setConfigStep(1)
+    setConfigCategoryTab('Lichtschalter')
+    setShowConfigurator(true)
+  }
+  const addConfigToCart = () => {
+    if (!currentUser) {
+      setShowConfigurator(false)
+      setShowLoginDialog(true)
+      return
+    }
+    configItems.forEach(x => addToCart(x.product, x.quantity))
+    setShowConfigurator(false)
+  }
+  const requestConfigAngebot = () => {
+    const msg = configItems.map(x => `${x.product.name} x${x.quantity} (${x.product.price})`).join('\n')
+    setShowConfigurator(false)
+    openAngebotDialog(null, `Smart Home Konfiguration:\n\n${msg}\n\n`)
+  }
+
   // Energy Calculator
   const buildingTypes = [
     { id: 'altbau', name: 'Altbau (bis 1995)', value: 120, unit: 'W/m²' },
@@ -1024,6 +1102,7 @@ function App() {
                 { label: 'Produkte', id: 'produkte', icon: Package },
                 { label: 'Rechner', id: 'rechner', icon: Calculator },
                 { label: 'FAQ', id: 'faq', icon: HelpCircle },
+                { label: 'Blog', id: 'blog', icon: BookOpen },
                 { label: 'Kontakt', id: 'kontakt', icon: Mail },
               ].map((item) => {
                 const Icon = item.icon
@@ -1094,6 +1173,7 @@ function App() {
                 { label: 'Produkte', id: 'produkte', icon: Package },
                 { label: 'Rechner', id: 'rechner', icon: Calculator },
                 { label: 'FAQ', id: 'faq', icon: HelpCircle },
+                { label: 'Blog', id: 'blog', icon: BookOpen },
                 { label: 'Kontakt', id: 'kontakt', icon: Mail },
               ].map((item) => {
                 const Icon = item.icon
@@ -1127,10 +1207,14 @@ function App() {
                 KI-optimierte Gebäudeautomation mit A+++ Wärmepumpen, Gas-Brennwertgeräten und intelligenter Systemintegration. Fachbetrieb in Ebreichsdorf mit persönlicher Beratung.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 flex-wrap">
                 <Button onClick={() => scrollToSection('produkte')} className="bg-emerald-600 hover:bg-emerald-700 text-white text-lg px-8 py-6">
                   <Star className="w-5 h-5 mr-2" />
                   Produkte entdecken
+                </Button>
+                <Button onClick={openConfigurator} variant="outline" className="text-lg px-8 py-6 border-emerald-600 text-emerald-600 hover:bg-emerald-50">
+                  <Settings2 className="w-5 h-5 mr-2" />
+                  Smart Home konfigurieren
                 </Button>
                 <Button onClick={() => scrollToSection('rechner')} variant="outline" className="text-lg px-8 py-6">
                   <Calculator className="w-5 h-5 mr-2" />
@@ -1369,6 +1453,95 @@ function App() {
           </div>
         </section>
 
+        {/* Blog Section - SEO-optimierte Ratgeber */}
+        <section id="blog" className="py-16 md:py-24 bg-slate-50" aria-labelledby="blog-heading">
+          <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
+            <div className="max-w-4xl mx-auto">
+              <h2 id="blog-heading" className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Ratgeber & Expertenwissen</h2>
+              <p className="text-lg text-slate-600 mb-12">Kaufberatung, Förderungen und Tipps zu unseren Produkten – vom Fachbetrieb in Ebreichsdorf.</p>
+              
+              <div className="space-y-12">
+                <article className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm font-medium">Wärmepumpen</span>
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4">JNOD A+++ Wärmepumpen: Kaufberatung für Einfamilienhäuser</h3>
+                  <p className="text-slate-600 mb-4 leading-relaxed">
+                    Die <strong>JNOD A+++ Wärmepumpe 12kW</strong> ist die ideale Wahl für Einfamilienhäuser bis 150m². Mit R32-Kältemittel und COP bis 5,2 senken Sie Heizkosten nachhaltig. Für größere Häuser bis 200m² empfehlen wir die <strong>JNOD 16kW</strong>. Beide Modelle qualifizieren sich für die Klimaförderung – bis zu € 5.000 Zuschuss in Österreich.
+                  </p>
+                  <Button onClick={() => scrollToSection('produkte')} variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50">
+                    Wärmepumpen ansehen
+                  </Button>
+                </article>
+
+                <article className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-medium">Gas-Brennwert</span>
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4">Squirrel M30 Gas-Boiler: Effiziente Heizung mit WiFi-Steuerung</h3>
+                  <p className="text-slate-600 mb-4 leading-relaxed">
+                    Der <strong>Squirrel M30</strong> ist ein vollkondensierender Gas-Boiler mit bis zu 103% Effizienz. Die Serie umfasst 25kW, 30kW und 35kW – perfekt für Häuser von 200m² bis 420m². WiFi und App-Steuerung ermöglichen smarte Heizungsregelung. CE, ERP und RoHS zertifiziert.
+                  </p>
+                  <Button onClick={() => scrollToSection('produkte')} variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50">
+                    Gas-Boiler vergleichen
+                  </Button>
+                </article>
+
+                <article className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">Smart Home</span>
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4">TONGOU & GIRIER: Smart Switches für Licht und Steuerung</h3>
+                  <p className="text-slate-600 mb-4 leading-relaxed">
+                    <strong>TONGOU WiFi-Switches</strong> (1–4 Gang, Dimmer, Curtain) funktionieren mit Tuya/Smart Life, Alexa und Google. <strong>GIRIER Zigbee-Module</strong> bieten kabellose Steuerung ohne WiFi-Belastung. Beide Systeme eignen sich für Neubau und Nachrüstung. Versandkostenfrei ab € 50.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button onClick={() => scrollToSection('produkte')} variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50">
+                      Smart Home Produkte
+                    </Button>
+                    <Button onClick={openConfigurator} variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50">
+                      <Settings2 className="w-4 h-4 mr-1" />
+                      Konfigurator
+                    </Button>
+                  </div>
+                </article>
+
+                <article className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-medium">Photovoltaik</span>
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4">PV-Wechselrichter 5kW & Batteriespeicher 10kWh</h3>
+                  <p className="text-slate-600 mb-4 leading-relaxed">
+                    Der <strong>Smart PV-Wechselrichter 5kW</strong> erreicht bis zu 98,6% Wirkungsgrad und bietet App-Monitoring. Kombinierbar mit dem <strong>10kWh Batteriespeicher</strong> (LiFePO4, 6000 Zyklen) für maximale Eigenverbrauchsnutzung. Beide qualifizieren sich für Investitionszulage und Bundesland-Förderungen.
+                  </p>
+                  <Button onClick={() => scrollToSection('produkte')} variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50">
+                    Energiemanagement entdecken
+                  </Button>
+                </article>
+
+                <article className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-medium">Beleuchtung</span>
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4">Smart LED: Lampen, Streifen und Deckenleuchten</h3>
+                  <p className="text-slate-600 mb-4 leading-relaxed">
+                    Unsere <strong>Smart LED-Lampen</strong> (E27, GU10), <strong>LED-Streifen 5m RGBW</strong> und <strong>Deckenleuchten</strong> sind dimmbar, App-steuerbar und kompatibel mit Alexa & Google. Ideal für Wohnzimmer, Küche und Außenbereich. 16 Millionen Farben, Timer und Szenen.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button onClick={() => scrollToSection('produkte')} variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50">
+                      Beleuchtung ansehen
+                    </Button>
+                    <Button onClick={openConfigurator} variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50">
+                      <Settings2 className="w-4 h-4 mr-1" />
+                      Konfigurator
+                    </Button>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Contact Section */}
         <section id="kontakt" className="py-16 md:py-24 bg-white">
           <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
@@ -1476,6 +1649,7 @@ function App() {
                 <li><button onClick={() => scrollToSection('produkte')} className="hover:text-emerald-400 transition-colors">Produkte</button></li>
                 <li><button onClick={() => scrollToSection('rechner')} className="hover:text-emerald-400 transition-colors">Energie-Rechner</button></li>
                 <li><button onClick={() => scrollToSection('faq')} className="hover:text-emerald-400 transition-colors">FAQ</button></li>
+                <li><button onClick={() => scrollToSection('blog')} className="hover:text-emerald-400 transition-colors">Blog</button></li>
                 <li><button onClick={() => scrollToSection('kontakt')} className="hover:text-emerald-400 transition-colors">Kontakt</button></li>
               </ul>
             </div>
@@ -1648,6 +1822,191 @@ function App() {
                 </div>
               )}
             </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Smart Home Konfigurator */}
+      <Dialog open={showConfigurator} onOpenChange={(open) => { if (!open) setShowConfigurator(false) }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Settings2 className="w-5 h-5" />
+              Smart Home Konfigurator
+            </DialogTitle>
+            <DialogDescription>
+              Schritt {configStep} von 4
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Step indicator */}
+          <div className="flex gap-2 mb-6">
+            {([1, 2, 3, 4] as const).map((s) => (
+              <div
+                key={s}
+                className={`h-2 flex-1 rounded-full transition-colors ${configStep === s ? 'bg-emerald-600' : configStep > s ? 'bg-emerald-300' : 'bg-slate-200'}`}
+              />
+            ))}
+          </div>
+
+          {configStep === 1 && (
+            <div className="space-y-6">
+              <p className="text-slate-600">
+                Wählen Sie Produkte für Ihr Smart Home – Schritt für Schritt. Durchlaufen Sie die Kategorien Lichtschalter, Steckdosen, Beleuchtung, Thermostat und mehr.
+              </p>
+              <div className="flex justify-end">
+                <Button onClick={() => setConfigStep(2)} className="bg-emerald-600 hover:bg-emerald-700">
+                  Weiter
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {configStep === 2 && (
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {configCategories.filter(c => productsByConfigCategory[c]?.length > 0).map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setConfigCategoryTab(cat)}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      configCategoryTab === cat ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+              <div className="max-h-[320px] overflow-y-auto space-y-3">
+                {(productsByConfigCategory[configCategoryTab] || []).map((product) => {
+                  const qty = getConfigQuantity(product.id)
+                  return (
+                    <div key={product.id} className="flex items-center gap-4 p-3 bg-slate-50 rounded-xl">
+                      <img src={product.image} alt={product.name} className="w-14 h-14 object-cover rounded-lg" />
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-slate-900 truncate">{product.name}</h4>
+                        <p className="text-emerald-600 font-medium">{product.price}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => updateConfigQuantity(product.id, -1)}
+                          className="w-8 h-8 rounded-full bg-white border flex items-center justify-center disabled:opacity-50"
+                          disabled={qty === 0}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="w-8 text-center font-medium">{qty}</span>
+                        <button
+                          onClick={() => addConfigItem(product, 1)}
+                          className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center hover:bg-emerald-700"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+              {hasGirierProducts && !hasHub && girierHub && (
+                <div className="flex items-center justify-between p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                  <p className="text-sm text-amber-800">Empfehlung: GIRIER Zigbee Gateway Hub für Ihre Zigbee-Geräte hinzufügen.</p>
+                  <Button size="sm" onClick={() => addConfigItem(girierHub, 1)} className="bg-amber-600 hover:bg-amber-700">
+                    <Plus className="w-4 h-4 mr-1" />
+                    Hinzufügen
+                  </Button>
+                </div>
+              )}
+              <div className="flex justify-between pt-2">
+                <Button variant="outline" onClick={() => setConfigStep(1)}>
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  Zurück
+                </Button>
+                <Button onClick={() => setConfigStep(3)} className="bg-emerald-600 hover:bg-emerald-700">
+                  Weiter
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {configStep === 3 && (
+            <div className="space-y-4">
+              {configItems.length === 0 ? (
+                <p className="text-slate-500 py-4">Noch keine Produkte ausgewählt. Gehen Sie zurück und wählen Sie Produkte.</p>
+              ) : (
+                <div className="space-y-2 max-h-[280px] overflow-y-auto">
+                  {configItems.map((x) => (
+                    <div key={x.product.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                      <div>
+                        <span className="font-medium text-slate-900">{x.product.name}</span>
+                        <span className="text-slate-500 ml-2">x{x.quantity}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-emerald-600 font-medium">€ {(x.product.priceValue * x.quantity).toFixed(2)}</span>
+                        <button onClick={() => removeConfigItem(x.product.id)} className="text-slate-400 hover:text-red-600">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {configItems.length > 0 && (
+                <div className="border-t pt-4 flex justify-between items-center">
+                  <span className="font-semibold text-slate-900">Gesamt</span>
+                  <span className="text-xl font-bold text-emerald-600">€ {configTotal.toFixed(2)}</span>
+                </div>
+              )}
+              <div className="flex justify-between pt-2">
+                <Button variant="outline" onClick={() => setConfigStep(2)}>
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  Zurück
+                </Button>
+                <Button onClick={() => setConfigStep(4)} disabled={configItems.length === 0} className="bg-emerald-600 hover:bg-emerald-700">
+                  Weiter
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {configStep === 4 && (
+            <div className="space-y-6">
+              <p className="text-slate-600">
+                {configItems.length > 0
+                  ? `Ihre Konfiguration mit ${configItems.reduce((s, x) => s + x.quantity, 0)} Artikeln (€ ${configTotal.toFixed(2)}) ist bereit.`
+                  : 'Keine Produkte ausgewählt.'}
+              </p>
+              {configItems.length > 0 && (
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button
+                    onClick={addConfigToCart}
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                  >
+                    <ShoppingCart className="w-5 h-5 mr-2" />
+                    In den Warenkorb
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={requestConfigAngebot}
+                    className="flex-1 border-emerald-600 text-emerald-600 hover:bg-emerald-50"
+                  >
+                    <Mail className="w-5 h-5 mr-2" />
+                    Angebot anfragen
+                  </Button>
+                </div>
+              )}
+              <div className="flex justify-between pt-2">
+                <Button variant="outline" onClick={() => setConfigStep(3)}>
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  Zurück
+                </Button>
+                <Button variant="ghost" onClick={() => setShowConfigurator(false)}>
+                  Schließen
+                </Button>
+              </div>
+            </div>
           )}
         </DialogContent>
       </Dialog>
