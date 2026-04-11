@@ -1074,12 +1074,12 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       {/* Skip Link - Barrierefreiheit: Erster Fokus springt zum Hauptinhalt */}
       <a href="#main-content" className="skip-link">Zum Hauptinhalt springen</a>
       
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm" role="banner">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-stone-200" role="banner">
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="flex items-center justify-between h-16 md:h-20">
             <button 
@@ -1094,55 +1094,51 @@ function App() {
               />
             </button>
 
-            <nav className="hidden lg:flex items-center gap-8" aria-label="Hauptnavigation">
+            <nav className="hidden lg:flex items-center gap-10" aria-label="Hauptnavigation">
               {[
-                { label: 'Home', id: 'home', icon: Home },
-                { label: 'Produkte', id: 'produkte', icon: Package },
-                { label: 'Rechner', id: 'rechner', icon: Calculator },
-                { label: 'FAQ', id: 'faq', icon: HelpCircle },
-                { label: 'Blog', id: 'blog', icon: BookOpen },
-                { label: 'Kontakt', id: 'kontakt', icon: Mail },
-              ].map((item) => {
-                const Icon = item.icon
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => scrollToSection(item.id)}
-                    className="flex items-center gap-2 text-slate-700 hover:text-emerald-600 font-medium transition-colors"
-                  >
-                    <Icon className="w-4 h-4" />
-                    {item.label}
-                  </button>
-                )
-              })}
+                { label: 'Home', id: 'home' },
+                { label: 'Produkte', id: 'produkte' },
+                { label: 'Rechner', id: 'rechner' },
+                { label: 'FAQ', id: 'faq' },
+                { label: 'Blog', id: 'blog' },
+                { label: 'Kontakt', id: 'kontakt' },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className="text-stone-600 hover:text-stone-900 text-sm tracking-wide uppercase transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-px after:bg-stone-900 hover:after:w-full after:transition-all"
+                >
+                  {item.label}
+                </button>
+              ))}
             </nav>
 
-            <div className="hidden lg:flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-4">
               {currentUser ? (
                 <>
-                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                  <div className="flex items-center gap-2 text-sm text-stone-600">
                     <User className="w-4 h-4" />
                     <div className="flex flex-col items-start">
                       <span className="max-w-[120px] truncate">{currentUser.name}</span>
-                      <span className="text-xs text-slate-400">KN: {currentUser.customerNumber}</span>
+                      <span className="text-xs text-stone-400">KN: {currentUser.customerNumber}</span>
                     </div>
                     {currentUser.isWholesale && (
-                      <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-xs">{currentUser.type === 'company' ? 'Firma' : 'Händler'}</span>
+                      <span className="bg-stone-100 text-stone-700 px-2 py-0.5 text-xs">{currentUser.type === 'company' ? 'Firma' : 'Händler'}</span>
                     )}
                   </div>
-                  <Button variant="ghost" size="sm" onClick={() => setCurrentUser(null)} className="text-slate-500" aria-label="Abmelden">
+                  <Button variant="ghost" size="sm" onClick={() => setCurrentUser(null)} className="text-stone-500" aria-label="Abmelden">
                     <LogOut className="w-4 h-4" aria-hidden="true" />
                   </Button>
                 </>
               ) : (
-                <Button variant="outline" onClick={() => setShowLoginDialog(true)} className="border-slate-300">
+                <Button variant="ghost" onClick={() => setShowLoginDialog(true)} className="text-stone-700 hover:text-stone-900">
                   <User className="w-4 h-4 mr-2" />
                   Anmelden
                 </Button>
               )}
               <Button 
                 onClick={() => currentUser ? setShowCart(true) : setShowLoginDialog(true)}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="bg-stone-900 hover:bg-stone-800 text-white rounded-none px-6"
                 aria-label={currentUser && cartItemCount > 0 ? `Warenkorb: ${cartItemCount} Artikel, € ${cartTotal.toFixed(2)}` : 'Warenkorb öffnen'}
               >
                 <ShoppingCart className="w-4 h-4 mr-2" />
@@ -1164,24 +1160,20 @@ function App() {
         </div>
 
         {isMenuOpen && (
-          <div className="lg:hidden bg-white border-t" role="navigation" aria-label="Mobile Navigation">
-            <nav className="flex flex-col p-4 gap-4">
+          <div className="lg:hidden bg-white border-t border-stone-200" role="navigation" aria-label="Mobile Navigation">
+            <nav className="flex flex-col p-6 gap-1">
               {[
-                { label: 'Home', id: 'home', icon: Home },
-                { label: 'Produkte', id: 'produkte', icon: Package },
-                { label: 'Rechner', id: 'rechner', icon: Calculator },
-                { label: 'FAQ', id: 'faq', icon: HelpCircle },
-                { label: 'Blog', id: 'blog', icon: BookOpen },
-                { label: 'Kontakt', id: 'kontakt', icon: Mail },
-              ].map((item) => {
-                const Icon = item.icon
-                return (
-                  <button key={item.id} onClick={() => scrollToSection(item.id)} className="flex items-center gap-3 text-left text-slate-700 font-medium py-2">
-                    <Icon className="w-5 h-5 text-emerald-600" />
-                    {item.label}
-                  </button>
-                )
-              })}
+                { label: 'Home', id: 'home' },
+                { label: 'Produkte', id: 'produkte' },
+                { label: 'Rechner', id: 'rechner' },
+                { label: 'FAQ', id: 'faq' },
+                { label: 'Blog', id: 'blog' },
+                { label: 'Kontakt', id: 'kontakt' },
+              ].map((item) => (
+                <button key={item.id} onClick={() => scrollToSection(item.id)} className="text-left text-stone-700 font-light py-3 text-lg tracking-wide border-b border-stone-100 last:border-0">
+                  {item.label}
+                </button>
+              ))}
             </nav>
           </div>
         )}
@@ -1192,50 +1184,44 @@ function App() {
         <section id="home" className="relative min-h-screen flex items-center pt-16 md:pt-20 overflow-hidden">
           {/* Background image */}
           <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/images/hero-smarthome.png)' }} aria-hidden="true" />
-          {/* Overlay for text readability - lighter to show image */}
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/50 via-slate-900/35 to-slate-900/20" aria-hidden="true" />
+          {/* Overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-stone-950/70 via-stone-950/50 to-stone-950/30" aria-hidden="true" />
           <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-12 md:py-20">
             <div className="max-w-4xl">
-              <div className="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-4 py-2 rounded-full text-sm font-medium mb-6">
-                <Award className="w-4 h-4" />
-                A+++ Energieeffizienz - Beste Produkte 2025
-              </div>
-              
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-                <span className="text-emerald-400">A+++</span> Geräte für nachhaltige Gebäudetechnik
-              </h1>
-              
-              <p className="text-lg md:text-xl text-slate-200 max-w-2xl mb-8">
-                KI-optimierte Gebäudeautomation mit A+++ Wärmepumpen, Gas-Brennwertgeräten und intelligenter Systemintegration. Fachbetrieb in Ebreichsdorf mit persönlicher Beratung.
+              <p className="text-sm tracking-[0.3em] uppercase text-stone-300 mb-6">
+                A+++ Energieeffizienz
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 flex-wrap">
-                <Button onClick={() => scrollToSection('produkte')} className="bg-emerald-600 hover:bg-emerald-500 text-white text-lg px-8 py-6">
-                  <Star className="w-5 h-5 mr-2" />
+              <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-light text-white leading-[1.1] mb-8 text-balance">
+                Nachhaltige Gebäudetechnik für modernes Wohnen
+              </h1>
+              
+              <p className="text-lg md:text-xl text-stone-300 max-w-2xl mb-10 font-light leading-relaxed">
+                Wärmepumpen, Gas-Brennwertgeräte und Smart Home Systeme. Fachbetrieb in Ebreichsdorf mit persönlicher Beratung.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button onClick={() => scrollToSection('produkte')} className="bg-white text-stone-900 hover:bg-stone-100 text-base px-10 py-6 rounded-none font-medium tracking-wide">
                   Produkte entdecken
+                  <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
-                <Button onClick={openConfigurator} variant="outline" className="text-lg px-8 py-6 bg-transparent border-2 border-white text-white hover:bg-white/20 hover:border-white">
-                  <Settings2 className="w-5 h-5 mr-2" />
+                <Button onClick={openConfigurator} variant="outline" className="text-base px-10 py-6 bg-transparent border border-white/50 text-white hover:bg-white/10 rounded-none font-medium tracking-wide">
                   Smart Home konfigurieren
-                </Button>
-                <Button onClick={() => scrollToSection('rechner')} variant="outline" className="text-lg px-8 py-6 bg-transparent border-2 border-white text-white hover:bg-white/20 hover:border-white">
-                  <Calculator className="w-5 h-5 mr-2" />
-                  Energie-Rechner
                 </Button>
               </div>
 
-              <div className="mt-12 flex flex-wrap gap-6 items-center">
-                <div className="flex items-center gap-2 text-slate-200">
-                  <Check className="w-5 h-5 text-emerald-400" />
-                  <span>Klimaförderung bis € 5.000</span>
+              <div className="mt-16 flex flex-wrap gap-8 items-center">
+                <div className="flex items-center gap-3 text-stone-300">
+                  <div className="w-px h-4 bg-stone-500" />
+                  <span className="text-sm tracking-wide">Klimaförderung bis € 5.000</span>
                 </div>
-                <div className="flex items-center gap-2 text-slate-200">
-                  <Check className="w-5 h-5 text-emerald-400" />
-                  <span>14 Tage Rückgaberecht</span>
+                <div className="flex items-center gap-3 text-stone-300">
+                  <div className="w-px h-4 bg-stone-500" />
+                  <span className="text-sm tracking-wide">14 Tage Rückgaberecht</span>
                 </div>
-                <div className="flex items-center gap-2 text-slate-200">
-                  <Check className="w-5 h-5 text-emerald-400" />
-                  <span>Kostenlose Beratung</span>
+                <div className="flex items-center gap-3 text-stone-300">
+                  <div className="w-px h-4 bg-stone-500" />
+                  <span className="text-sm tracking-wide">Kostenlose Beratung</span>
                 </div>
               </div>
             </div>
@@ -1243,22 +1229,23 @@ function App() {
         </section>
 
         {/* Products Section */}
-        <section id="produkte" className="py-16 md:py-24 bg-slate-50">
+        <section id="produkte" className="py-20 md:py-32 bg-white">
           <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Unser Produktsortiment</h2>
-              <p className="text-lg text-slate-600">Wärmepumpen, Gas-Brennwertgeräte, Smart Home und mehr</p>
+            <div className="text-center mb-16">
+              <p className="text-sm tracking-[0.2em] uppercase text-stone-500 mb-4">Kollektion</p>
+              <h2 className="font-serif text-3xl md:text-5xl font-light text-stone-900 mb-4">Unser Produktsortiment</h2>
+              <p className="text-lg text-stone-500 font-light">Wärmepumpen, Gas-Brennwertgeräte, Smart Home und mehr</p>
             </div>
 
-            <div className="flex overflow-x-auto pb-4 gap-2 mb-8">
+            <div className="flex overflow-x-auto pb-4 gap-1 mb-12 justify-center">
               {filters.map((filter) => (
                 <button
                   key={filter}
                   onClick={() => setActiveFilter(filter)}
-                  className={`px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                  className={`px-6 py-2 text-sm tracking-wide whitespace-nowrap transition-all ${
                     activeFilter === filter 
-                      ? 'bg-emerald-600 text-white' 
-                      : 'bg-white text-slate-600 hover:bg-slate-100'
+                      ? 'text-stone-900 border-b-2 border-stone-900' 
+                      : 'text-stone-500 hover:text-stone-700 border-b-2 border-transparent'
                   }`}
                 >
                   {filter}
@@ -1266,45 +1253,48 @@ function App() {
               ))}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-stone-200">
               {filteredProducts.map((product) => (
                 <div 
                   key={product.id} 
                   onClick={() => { setSelectedProduct(product); setProductQuantity(1) }}
-                  className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col"
+                  className="bg-white overflow-hidden group cursor-pointer flex flex-col"
                 >
-                  <div className="h-48 bg-slate-50 flex items-center justify-center overflow-hidden relative">
+                  <div className="aspect-square bg-stone-50 flex items-center justify-center overflow-hidden relative">
                     {product.isTopProduct && (
-                      <div className="absolute top-2 left-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow">
-                        ★ TOP
+                      <div className="absolute top-4 left-4 bg-stone-900 text-white px-3 py-1 text-xs tracking-wide uppercase">
+                        Bestseller
                       </div>
                     )}
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" loading="lazy" />
+                    <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                   </div>
-                  <div className="p-5 flex flex-col flex-1">
-                    <span className="text-xs font-medium text-emerald-600 uppercase tracking-wider">{product.category}</span>
-                    <h3 className="text-base font-bold text-slate-900 mb-2 line-clamp-2 mt-1">{product.name}</h3>
-                    <p className="text-slate-600 text-sm mb-3 line-clamp-2 flex-1">{product.description}</p>
-                    {/* Preis-Section mit Förderhinweis (priorisiert) */}
-                    <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border-t border-emerald-100 -mx-5 px-5 py-4 mt-auto">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xl font-extrabold text-emerald-700">
+                  <div className="p-6 flex flex-col flex-1">
+                    <span className="text-xs text-stone-400 uppercase tracking-wider mb-2">{product.category}</span>
+                    <h3 className="font-serif text-lg text-stone-900 mb-2 line-clamp-2">{product.name}</h3>
+                    <p className="text-stone-500 text-sm mb-4 line-clamp-2 flex-1 font-light">{product.description}</p>
+                    
+                    <div className="border-t border-stone-100 pt-4 mt-auto">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xl font-medium text-stone-900">
                           {currentUser?.isWholesale && product.wholesalePrice ? product.wholesalePrice : product.price}
                         </span>
-                        <span className="text-emerald-600 text-sm cursor-pointer hover:underline" onClick={(e) => { e.stopPropagation(); setSelectedProduct(product) }}>Details →</span>
+                        <button className="text-stone-500 text-sm hover:text-stone-900 transition-colors" onClick={(e) => { e.stopPropagation(); setSelectedProduct(product) }}>
+                          Details
+                          <ArrowRight className="w-3 h-3 inline ml-1" />
+                        </button>
                       </div>
-                      {product.priceNote && <p className="text-xs text-emerald-700/80 mb-2">{product.priceNote}</p>}
+                      {product.priceNote && <p className="text-xs text-stone-400 mb-3">{product.priceNote}</p>}
                       {(['Wärmepumpen', 'Gas-Brennwert'].includes(product.category) || product.name.includes('PV-Wechselrichter') || product.name.includes('Batteriespeicher')) && (
-                        <div className="flex items-center gap-2 bg-amber-100 text-amber-800 px-3 py-2 rounded-lg text-xs font-medium">
+                        <div className="flex items-center gap-2 bg-stone-50 text-stone-600 px-3 py-2 text-xs mb-3">
                           <Gift className="w-4 h-4 flex-shrink-0" />
-                          <span>Förderung möglich – bis zu <strong>€ 5.000</strong> Zuschuss</span>
+                          <span>Förderung bis € 5.000</span>
                         </div>
                       )}
                     </div>
                     {product.benefits && product.benefits.length > 0 && (
-                      <div className="flex flex-wrap gap-2 my-3">
+                      <div className="flex flex-wrap gap-2 mb-4">
                         {product.benefits.map((b, i) => (
-                          <span key={i} className="text-xs text-emerald-700 bg-emerald-100 px-2 py-1 rounded-md font-medium">✓ {b}</span>
+                          <span key={i} className="text-xs text-stone-600 bg-stone-100 px-2 py-1">{b}</span>
                         ))}
                       </div>
                     )}
@@ -1312,7 +1302,7 @@ function App() {
                       {currentUser ? (
                         <Button 
                           onClick={(e) => { e.stopPropagation(); addToCart(product, 1) }} 
-                          className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 text-sm"
+                          className="flex-1 bg-stone-900 hover:bg-stone-800 text-white py-2 text-sm rounded-none"
                         >
                           <ShoppingCart className="w-4 h-4 mr-1" />
                           In den Warenkorb
@@ -1320,7 +1310,7 @@ function App() {
                       ) : (
                         <Button 
                           onClick={(e) => { e.stopPropagation(); setShowLoginDialog(true) }} 
-                          className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 text-sm"
+                          className="flex-1 bg-stone-900 hover:bg-stone-800 text-white py-2 text-sm rounded-none"
                         >
                           <ShoppingCart className="w-4 h-4 mr-1" />
                           In den Warenkorb
@@ -1328,7 +1318,7 @@ function App() {
                       )}
                       <Button 
                         variant="outline" 
-                        className="flex-1 border-emerald-600 text-emerald-600 hover:bg-emerald-50 py-2 text-sm"
+                        className="flex-1 border-stone-300 text-stone-700 hover:bg-stone-50 hover:border-stone-400 py-2 text-sm rounded-none"
                         onClick={(e) => { e.stopPropagation(); openAngebotDialog(product) }}
                       >
                         <Mail className="w-4 h-4 mr-1" />
@@ -1343,82 +1333,82 @@ function App() {
         </section>
 
         {/* Energy Calculator */}
-        <section id="rechner" className="py-16 md:py-24 bg-white">
+        <section id="rechner" className="py-20 md:py-32 bg-stone-50">
           <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Energie-Rechner</h2>
-              <p className="text-lg text-slate-600">Berechnen Sie Ihre Heizlast und vergleichen Sie Energiekosten</p>
+            <div className="text-center mb-16">
+              <p className="text-sm tracking-[0.2em] uppercase text-stone-500 mb-4">Werkzeug</p>
+              <h2 className="font-serif text-3xl md:text-5xl font-light text-stone-900 mb-4">Energie-Rechner</h2>
+              <p className="text-lg text-stone-500 font-light">Berechnen Sie Ihre Heizlast und vergleichen Sie Energiekosten</p>
             </div>
 
-            <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="max-w-4xl mx-auto bg-white border border-stone-200 p-8 md:p-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
-                  <Label className="text-lg font-medium mb-4 block">Gebäudetyp</Label>
+                  <Label className="text-sm tracking-wide uppercase text-stone-500 mb-4 block">Gebäudetyp</Label>
                   <div className="space-y-2">
                     {buildingTypes.map((type) => (
                       <button
                         key={type.id}
                         onClick={() => setBuildingType(type.id)}
-                        className={`w-full p-3 rounded-xl border-2 text-left transition-all ${
-                          buildingType === type.id ? 'border-emerald-600 bg-emerald-50' : 'border-slate-200 hover:border-emerald-300'
+                        className={`w-full p-4 border text-left transition-all ${
+                          buildingType === type.id ? 'border-stone-900 bg-stone-50' : 'border-stone-200 hover:border-stone-400'
                         }`}
                       >
-                        <div className="font-medium">{type.name}</div>
-                        <div className="text-sm text-slate-500">{type.value} {type.unit}</div>
+                        <div className="font-medium text-stone-900">{type.name}</div>
+                        <div className="text-sm text-stone-500">{type.value} {type.unit}</div>
                       </button>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <Label className="text-lg font-medium mb-4 block">Wohnfläche (m²)</Label>
-                  <div className="relative mb-6">
+                  <Label className="text-sm tracking-wide uppercase text-stone-500 mb-4 block">Wohnfläche (m²)</Label>
+                  <div className="relative mb-8">
                     <Input 
                       type="number" 
                       placeholder="z.B. 150"
                       value={area}
                       onChange={(e) => setArea(e.target.value)}
-                      className="text-lg py-6"
+                      className="text-lg py-6 border-stone-200 rounded-none focus:border-stone-900 focus:ring-0"
                     />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500">m²</span>
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400">m²</span>
                   </div>
                   
-                  <Label className="text-lg font-medium mb-4 block">Aktuelle Energiequelle</Label>
+                  <Label className="text-sm tracking-wide uppercase text-stone-500 mb-4 block">Aktuelle Energiequelle</Label>
                   <div className="space-y-2">
                     {(['Strom', 'Gas'] as const).map((source) => (
                       <button
                         key={source}
                         onClick={() => setEnergySource(source)}
-                        className={`w-full p-3 rounded-xl border-2 text-left transition-all flex justify-between ${
-                          energySource === source ? 'border-emerald-600 bg-emerald-50' : 'border-slate-200'
+                        className={`w-full p-4 border text-left transition-all flex justify-between ${
+                          energySource === source ? 'border-stone-900 bg-stone-50' : 'border-stone-200 hover:border-stone-400'
                         }`}
                       >
-                        <span>{source}</span>
-                        <span className="text-sm text-slate-500">ca. € {energyPrices[source].toFixed(2)}/kWh</span>
+                        <span className="text-stone-900">{source}</span>
+                        <span className="text-sm text-stone-500">ca. € {energyPrices[source].toFixed(2)}/kWh</span>
                       </button>
                     ))}
                   </div>
                 </div>
               </div>
 
-              <Button onClick={calculateEnergy} className="w-full mt-8 bg-emerald-600 hover:bg-emerald-700 text-white py-6 text-lg">
-                <Calculator className="w-5 h-5 mr-2" />
+              <Button onClick={calculateEnergy} className="w-full mt-10 bg-stone-900 hover:bg-stone-800 text-white py-6 text-base tracking-wide rounded-none">
                 Berechnung starten
               </Button>
 
               {calcResult && (
-                <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-emerald-50 p-4 rounded-xl">
-                    <div className="text-sm text-emerald-700">Empfohlene Leistung</div>
-                    <div className="text-2xl font-bold text-emerald-900">{calcResult.recommendedPower} kW</div>
+                <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-px bg-stone-200">
+                  <div className="bg-white p-6">
+                    <div className="text-sm text-stone-500 uppercase tracking-wide mb-2">Empfohlene Leistung</div>
+                    <div className="text-3xl font-serif text-stone-900">{calcResult.recommendedPower} kW</div>
                   </div>
-                  <div className="bg-amber-50 p-4 rounded-xl">
-                    <div className="text-sm text-amber-700">Aktuelle Kosten/Jahr</div>
-                    <div className="text-2xl font-bold text-amber-900">€ {calcResult.currentCost.toLocaleString()}</div>
+                  <div className="bg-white p-6">
+                    <div className="text-sm text-stone-500 uppercase tracking-wide mb-2">Aktuelle Kosten/Jahr</div>
+                    <div className="text-3xl font-serif text-stone-900">€ {calcResult.currentCost.toLocaleString()}</div>
                   </div>
-                  <div className="bg-emerald-100 p-4 rounded-xl border-2 border-emerald-300">
-                    <div className="text-sm text-emerald-800">Einsparung mit Wärmepumpe</div>
-                    <div className="text-2xl font-bold text-emerald-900">€ {calcResult.costSavings.toLocaleString()}/Jahr</div>
+                  <div className="bg-stone-900 p-6 text-white">
+                    <div className="text-sm text-stone-300 uppercase tracking-wide mb-2">Einsparung mit Wärmepumpe</div>
+                    <div className="text-3xl font-serif">€ {calcResult.costSavings.toLocaleString()}/Jahr</div>
                   </div>
                 </div>
               )}
@@ -1427,25 +1417,26 @@ function App() {
         </section>
 
         {/* FAQ Section */}
-        <section id="faq" className="py-16 md:py-24 bg-slate-50">
+        <section id="faq" className="py-20 md:py-32 bg-white">
           <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Häufig gestellte Fragen</h2>
-              <p className="text-lg text-slate-600">Antworten auf die wichtigsten Fragen zu unseren Produkten</p>
+            <div className="text-center mb-16">
+              <p className="text-sm tracking-[0.2em] uppercase text-stone-500 mb-4">Support</p>
+              <h2 className="font-serif text-3xl md:text-5xl font-light text-stone-900 mb-4">Häufig gestellte Fragen</h2>
+              <p className="text-lg text-stone-500 font-light">Antworten auf die wichtigsten Fragen zu unseren Produkten</p>
             </div>
 
-            <div className="max-w-3xl mx-auto space-y-4">
+            <div className="max-w-3xl mx-auto divide-y divide-stone-200">
               {faqs.map((faq, index) => (
-                <div key={index} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div key={index} className="py-6">
                   <button
                     onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                    className="w-full p-5 flex items-center justify-between text-left hover:bg-slate-50 transition-colors"
+                    className="w-full flex items-center justify-between text-left group"
                   >
-                    <span className="font-semibold text-slate-900 pr-4">{faq.question}</span>
-                    {openFaq === index ? <ChevronUp className="w-5 h-5 text-emerald-600 flex-shrink-0" /> : <ChevronDown className="w-5 h-5 text-slate-400 flex-shrink-0" />}
+                    <span className="font-serif text-lg text-stone-900 pr-4 group-hover:text-stone-600 transition-colors">{faq.question}</span>
+                    {openFaq === index ? <ChevronUp className="w-5 h-5 text-stone-900 flex-shrink-0" /> : <ChevronDown className="w-5 h-5 text-stone-400 flex-shrink-0" />}
                   </button>
                   {openFaq === index && (
-                    <div className="px-5 pb-5 text-slate-600 leading-relaxed">
+                    <div className="pt-4 text-stone-500 leading-relaxed font-light">
                       {faq.answer}
                     </div>
                   )}
@@ -1456,85 +1447,89 @@ function App() {
         </section>
 
         {/* Blog Section - SEO-optimierte Ratgeber */}
-        <section id="blog" className="py-16 md:py-24 bg-slate-50" aria-labelledby="blog-heading">
+        <section id="blog" className="py-20 md:py-32 bg-stone-50" aria-labelledby="blog-heading">
           <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
             <div className="max-w-4xl mx-auto">
-              <h2 id="blog-heading" className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Ratgeber & Expertenwissen</h2>
-              <p className="text-lg text-slate-600 mb-12">Kaufberatung, Förderungen und Tipps zu unseren Produkten – vom Fachbetrieb in Ebreichsdorf.</p>
+              <p className="text-sm tracking-[0.2em] uppercase text-stone-500 mb-4">Journal</p>
+              <h2 id="blog-heading" className="font-serif text-3xl md:text-5xl font-light text-stone-900 mb-4">Ratgeber & Expertenwissen</h2>
+              <p className="text-lg text-stone-500 font-light mb-16">Kaufberatung, Förderungen und Tipps zu unseren Produkten.</p>
               
-              <div className="space-y-12">
-                <article className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm font-medium">Wärmepumpen</span>
+              <div className="space-y-8">
+                <article className="bg-white border border-stone-200 p-8 md:p-10 group hover:border-stone-300 transition-colors">
+                  <div className="flex items-center gap-3 mb-6">
+                    <span className="text-xs tracking-wider uppercase text-stone-500 border-b border-stone-300 pb-1">Wärmepumpen</span>
                   </div>
-                  <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4">JNOD A+++ Wärmepumpen: Kaufberatung für Einfamilienhäuser</h3>
-                  <p className="text-slate-600 mb-4 leading-relaxed">
-                    Die <strong>JNOD A+++ Wärmepumpe 12kW</strong> ist die ideale Wahl für Einfamilienhäuser bis 150m². Mit R32-Kältemittel und COP bis 5,2 senken Sie Heizkosten nachhaltig. Für größere Häuser bis 200m² empfehlen wir die <strong>JNOD 16kW</strong>. Beide Modelle qualifizieren sich für die Klimaförderung – bis zu € 5.000 Zuschuss in Österreich.
+                  <h3 className="font-serif text-xl md:text-2xl text-stone-900 mb-4">JNOD A+++ Wärmepumpen: Kaufberatung für Einfamilienhäuser</h3>
+                  <p className="text-stone-500 mb-6 leading-relaxed font-light">
+                    Die <strong className="text-stone-700">JNOD A+++ Wärmepumpe 12kW</strong> ist die ideale Wahl für Einfamilienhäuser bis 150m². Mit R32-Kältemittel und COP bis 5,2 senken Sie Heizkosten nachhaltig. Für größere Häuser bis 200m² empfehlen wir die <strong className="text-stone-700">JNOD 16kW</strong>. Beide Modelle qualifizieren sich für die Klimaförderung – bis zu € 5.000 Zuschuss in Österreich.
                   </p>
-                  <Button onClick={() => scrollToSection('produkte')} variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50">
+                  <Button onClick={() => scrollToSection('produkte')} variant="outline" className="border-stone-300 text-stone-700 hover:bg-stone-50 hover:border-stone-400 rounded-none">
                     Wärmepumpen ansehen
+                    <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </article>
 
-                <article className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-medium">Gas-Brennwert</span>
+                <article className="bg-white border border-stone-200 p-8 md:p-10 group hover:border-stone-300 transition-colors">
+                  <div className="flex items-center gap-3 mb-6">
+                    <span className="text-xs tracking-wider uppercase text-stone-500 border-b border-stone-300 pb-1">Gas-Brennwert</span>
                   </div>
-                  <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4">Squirrel M30 Gas-Boiler: Effiziente Heizung mit WiFi-Steuerung</h3>
-                  <p className="text-slate-600 mb-4 leading-relaxed">
-                    Der <strong>Squirrel M30</strong> ist ein vollkondensierender Gas-Boiler mit bis zu 103% Effizienz. Die Serie umfasst 25kW, 30kW und 35kW – perfekt für Häuser von 200m² bis 420m². WiFi und App-Steuerung ermöglichen smarte Heizungsregelung. CE, ERP und RoHS zertifiziert.
+                  <h3 className="font-serif text-xl md:text-2xl text-stone-900 mb-4">Squirrel M30 Gas-Boiler: Effiziente Heizung mit WiFi-Steuerung</h3>
+                  <p className="text-stone-500 mb-6 leading-relaxed font-light">
+                    Der <strong className="text-stone-700">Squirrel M30</strong> ist ein vollkondensierender Gas-Boiler mit bis zu 103% Effizienz. Die Serie umfasst 25kW, 30kW und 35kW – perfekt für Häuser von 200m² bis 420m². WiFi und App-Steuerung ermöglichen smarte Heizungsregelung. CE, ERP und RoHS zertifiziert.
                   </p>
-                  <Button onClick={() => scrollToSection('produkte')} variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50">
+                  <Button onClick={() => scrollToSection('produkte')} variant="outline" className="border-stone-300 text-stone-700 hover:bg-stone-50 hover:border-stone-400 rounded-none">
                     Gas-Boiler vergleichen
+                    <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </article>
 
-                <article className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">Smart Home</span>
+                <article className="bg-white border border-stone-200 p-8 md:p-10 group hover:border-stone-300 transition-colors">
+                  <div className="flex items-center gap-3 mb-6">
+                    <span className="text-xs tracking-wider uppercase text-stone-500 border-b border-stone-300 pb-1">Smart Home</span>
                   </div>
-                  <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4">TONGOU & GIRIER: Smart Switches für Licht und Steuerung</h3>
-                  <p className="text-slate-600 mb-4 leading-relaxed">
-                    <strong>TONGOU WiFi-Switches</strong> (1–4 Gang, Dimmer, Curtain) funktionieren mit Tuya/Smart Life, Alexa und Google. <strong>GIRIER Zigbee-Module</strong> bieten kabellose Steuerung ohne WiFi-Belastung. Beide Systeme eignen sich für Neubau und Nachrüstung. Versandkostenfrei ab € 50.
+                  <h3 className="font-serif text-xl md:text-2xl text-stone-900 mb-4">TONGOU & GIRIER: Smart Switches für Licht und Steuerung</h3>
+                  <p className="text-stone-500 mb-6 leading-relaxed font-light">
+                    <strong className="text-stone-700">TONGOU WiFi-Switches</strong> (1–4 Gang, Dimmer, Curtain) funktionieren mit Tuya/Smart Life, Alexa und Google. <strong className="text-stone-700">GIRIER Zigbee-Module</strong> bieten kabellose Steuerung ohne WiFi-Belastung. Beide Systeme eignen sich für Neubau und Nachrüstung. Versandkostenfrei ab € 50.
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    <Button onClick={() => scrollToSection('produkte')} variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50">
+                  <div className="flex flex-wrap gap-3">
+                    <Button onClick={() => scrollToSection('produkte')} variant="outline" className="border-stone-300 text-stone-700 hover:bg-stone-50 hover:border-stone-400 rounded-none">
                       Smart Home Produkte
+                      <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
-                    <Button onClick={openConfigurator} variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50">
-                      <Settings2 className="w-4 h-4 mr-1" />
+                    <Button onClick={openConfigurator} variant="outline" className="border-stone-300 text-stone-700 hover:bg-stone-50 hover:border-stone-400 rounded-none">
                       Konfigurator
                     </Button>
                   </div>
                 </article>
 
-                <article className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-medium">Photovoltaik</span>
+                <article className="bg-white border border-stone-200 p-8 md:p-10 group hover:border-stone-300 transition-colors">
+                  <div className="flex items-center gap-3 mb-6">
+                    <span className="text-xs tracking-wider uppercase text-stone-500 border-b border-stone-300 pb-1">Photovoltaik</span>
                   </div>
-                  <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4">PV-Wechselrichter 5kW & Batteriespeicher 10kWh</h3>
-                  <p className="text-slate-600 mb-4 leading-relaxed">
-                    Der <strong>Smart PV-Wechselrichter 5kW</strong> erreicht bis zu 98,6% Wirkungsgrad und bietet App-Monitoring. Kombinierbar mit dem <strong>10kWh Batteriespeicher</strong> (LiFePO4, 6000 Zyklen) für maximale Eigenverbrauchsnutzung. Beide qualifizieren sich für Investitionszulage und Bundesland-Förderungen.
+                  <h3 className="font-serif text-xl md:text-2xl text-stone-900 mb-4">PV-Wechselrichter 5kW & Batteriespeicher 10kWh</h3>
+                  <p className="text-stone-500 mb-6 leading-relaxed font-light">
+                    Der <strong className="text-stone-700">Smart PV-Wechselrichter 5kW</strong> erreicht bis zu 98,6% Wirkungsgrad und bietet App-Monitoring. Kombinierbar mit dem <strong className="text-stone-700">10kWh Batteriespeicher</strong> (LiFePO4, 6000 Zyklen) für maximale Eigenverbrauchsnutzung. Beide qualifizieren sich für Investitionszulage und Bundesland-Förderungen.
                   </p>
-                  <Button onClick={() => scrollToSection('produkte')} variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50">
+                  <Button onClick={() => scrollToSection('produkte')} variant="outline" className="border-stone-300 text-stone-700 hover:bg-stone-50 hover:border-stone-400 rounded-none">
                     Energiemanagement entdecken
+                    <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </article>
 
-                <article className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-medium">Beleuchtung</span>
+                <article className="bg-white border border-stone-200 p-8 md:p-10 group hover:border-stone-300 transition-colors">
+                  <div className="flex items-center gap-3 mb-6">
+                    <span className="text-xs tracking-wider uppercase text-stone-500 border-b border-stone-300 pb-1">Beleuchtung</span>
                   </div>
-                  <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4">Smart LED: Lampen, Streifen und Deckenleuchten</h3>
-                  <p className="text-slate-600 mb-4 leading-relaxed">
-                    Unsere <strong>Smart LED-Lampen</strong> (E27, GU10), <strong>LED-Streifen 5m RGBW</strong> und <strong>Deckenleuchten</strong> sind dimmbar, App-steuerbar und kompatibel mit Alexa & Google. Ideal für Wohnzimmer, Küche und Außenbereich. 16 Millionen Farben, Timer und Szenen.
+                  <h3 className="font-serif text-xl md:text-2xl text-stone-900 mb-4">Smart LED: Lampen, Streifen und Deckenleuchten</h3>
+                  <p className="text-stone-500 mb-6 leading-relaxed font-light">
+                    Unsere <strong className="text-stone-700">Smart LED-Lampen</strong> (E27, GU10), <strong className="text-stone-700">LED-Streifen 5m RGBW</strong> und <strong className="text-stone-700">Deckenleuchten</strong> sind dimmbar, App-steuerbar und kompatibel mit Alexa & Google. Ideal für Wohnzimmer, Küche und Außenbereich. 16 Millionen Farben, Timer und Szenen.
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    <Button onClick={() => scrollToSection('produkte')} variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50">
+                  <div className="flex flex-wrap gap-3">
+                    <Button onClick={() => scrollToSection('produkte')} variant="outline" className="border-stone-300 text-stone-700 hover:bg-stone-50 hover:border-stone-400 rounded-none">
                       Beleuchtung ansehen
+                      <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
-                    <Button onClick={openConfigurator} variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50">
-                      <Settings2 className="w-4 h-4 mr-1" />
+                    <Button onClick={openConfigurator} variant="outline" className="border-stone-300 text-stone-700 hover:bg-stone-50 hover:border-stone-400 rounded-none">
                       Konfigurator
                     </Button>
                   </div>
@@ -1545,87 +1540,83 @@ function App() {
         </section>
 
         {/* Contact Section */}
-        <section id="kontakt" className="py-16 md:py-24 bg-white">
+        <section id="kontakt" className="py-20 md:py-32 bg-white">
           <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Kontaktieren Sie uns</h2>
-              <p className="text-lg text-slate-600">Kostenlose Beratung und Angebotserstellung</p>
+            <div className="text-center mb-16">
+              <p className="text-sm tracking-[0.2em] uppercase text-stone-500 mb-4">Kontakt</p>
+              <h2 className="font-serif text-3xl md:text-5xl font-light text-stone-900 mb-4">Kontaktieren Sie uns</h2>
+              <p className="text-lg text-stone-500 font-light">Kostenlose Beratung und Angebotserstellung</p>
             </div>
 
-            <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-                    <MapPin className="w-6 h-6 text-emerald-600" />
+            <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+              <div className="space-y-8">
+                <div className="flex items-start gap-5">
+                  <div className="w-12 h-12 border border-stone-200 flex items-center justify-center">
+                    <MapPin className="w-5 h-5 text-stone-700" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-slate-900">Adresse</h4>
-                    <p className="text-slate-600">Seepromenade 109<br/>AT-2384 Ebreichsdorf</p>
+                    <h4 className="font-medium text-stone-900 mb-1">Adresse</h4>
+                    <p className="text-stone-500 font-light">Seepromenade 109<br/>AT-2384 Ebreichsdorf</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-                    <Phone className="w-6 h-6 text-emerald-600" />
+                <div className="flex items-start gap-5">
+                  <div className="w-12 h-12 border border-stone-200 flex items-center justify-center">
+                    <Phone className="w-5 h-5 text-stone-700" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-slate-900">Telefon</h4>
-                    <p className="text-slate-600">+43 / 0664 328 95 99</p>
+                    <h4 className="font-medium text-stone-900 mb-1">Telefon</h4>
+                    <p className="text-stone-500 font-light">+43 / 0664 328 95 99</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-                    <Mail className="w-6 h-6 text-emerald-600" />
+                <div className="flex items-start gap-5">
+                  <div className="w-12 h-12 border border-stone-200 flex items-center justify-center">
+                    <Mail className="w-5 h-5 text-stone-700" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-slate-900">E-Mail</h4>
-                    <p className="text-slate-600">office@eco-building.tech</p>
+                    <h4 className="font-medium text-stone-900 mb-1">E-Mail</h4>
+                    <p className="text-stone-500 font-light">office@eco-building.tech</p>
                   </div>
                 </div>
               </div>
 
-              <form className="bg-slate-50 p-6 rounded-2xl" onSubmit={submitKontakt}>
-                <div className="space-y-4">
+              <form className="border border-stone-200 p-8" onSubmit={submitKontakt}>
+                <div className="space-y-5">
                   {kontaktStatus === 'success' ? (
-                    <div className="py-4 text-center">
-                      <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <Check className="w-6 h-6 text-emerald-600" />
+                    <div className="py-8 text-center">
+                      <div className="w-12 h-12 bg-stone-900 flex items-center justify-center mx-auto mb-4">
+                        <Check className="w-6 h-6 text-white" />
                       </div>
-                      <p className="font-semibold text-slate-900">Vielen Dank!</p>
-                      <p className="text-slate-600 text-sm">Ihre Nachricht wurde gesendet. Wir melden uns in Kürze.</p>
-                      <Button type="button" variant="outline" onClick={() => setKontaktStatus('idle')} className="mt-3">Weitere Nachricht</Button>
+                      <p className="font-serif text-xl text-stone-900 mb-2">Vielen Dank!</p>
+                      <p className="text-stone-500 text-sm font-light">Ihre Nachricht wurde gesendet. Wir melden uns in Kürze.</p>
+                      <Button type="button" variant="outline" onClick={() => setKontaktStatus('idle')} className="mt-4 border-stone-300 rounded-none">Weitere Nachricht</Button>
                     </div>
                   ) : kontaktStatus === 'error' ? (
-                    <div className="py-4 text-center">
+                    <div className="py-8 text-center">
                       <p className="text-red-600 font-medium">Fehler beim Senden.</p>
-                      <Button type="button" variant="outline" onClick={() => setKontaktStatus('idle')} className="mt-2">Erneut versuchen</Button>
+                      <Button type="button" variant="outline" onClick={() => setKontaktStatus('idle')} className="mt-3 border-stone-300 rounded-none">Erneut versuchen</Button>
                     </div>
                   ) : (
                     <>
                       <div>
-                        <Label>Name *</Label>
-                        <Input value={kontaktForm.name} onChange={(e) => setKontaktForm(f => ({ ...f, name: e.target.value }))} placeholder="Ihr Name" required />
+                        <Label className="text-xs tracking-wide uppercase text-stone-500">Name *</Label>
+                        <Input value={kontaktForm.name} onChange={(e) => setKontaktForm(f => ({ ...f, name: e.target.value }))} placeholder="Ihr Name" required className="mt-2 border-stone-200 rounded-none focus:border-stone-900 focus:ring-0" />
                       </div>
                       <div>
-                        <Label>E-Mail *</Label>
-                        <Input type="email" value={kontaktForm.email} onChange={(e) => setKontaktForm(f => ({ ...f, email: e.target.value }))} placeholder="ihre@email.at" required />
+                        <Label className="text-xs tracking-wide uppercase text-stone-500">E-Mail *</Label>
+                        <Input type="email" value={kontaktForm.email} onChange={(e) => setKontaktForm(f => ({ ...f, email: e.target.value }))} placeholder="ihre@email.at" required className="mt-2 border-stone-200 rounded-none focus:border-stone-900 focus:ring-0" />
                       </div>
                       <div>
-                        <Label>Telefon</Label>
-                        <Input value={kontaktForm.phone} onChange={(e) => setKontaktForm(f => ({ ...f, phone: e.target.value }))} placeholder="+43 ..." />
+                        <Label className="text-xs tracking-wide uppercase text-stone-500">Telefon</Label>
+                        <Input value={kontaktForm.phone} onChange={(e) => setKontaktForm(f => ({ ...f, phone: e.target.value }))} placeholder="+43 ..." className="mt-2 border-stone-200 rounded-none focus:border-stone-900 focus:ring-0" />
                       </div>
                       <div>
-                        <Label>Nachricht *</Label>
-                        <Textarea value={kontaktForm.message} onChange={(e) => setKontaktForm(f => ({ ...f, message: e.target.value }))} rows={4} placeholder="Ihre Anfrage..." required />
+                        <Label className="text-xs tracking-wide uppercase text-stone-500">Nachricht *</Label>
+                        <Textarea value={kontaktForm.message} onChange={(e) => setKontaktForm(f => ({ ...f, message: e.target.value }))} rows={4} placeholder="Ihre Anfrage..." required className="mt-2 border-stone-200 rounded-none focus:border-stone-900 focus:ring-0" />
                       </div>
-                      <Button type="submit" disabled={kontaktStatus === 'sending'} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6">
-                        {kontaktStatus === 'sending' ? 'Wird gesendet...' : (
-                          <>
-                            <Mail className="w-5 h-5 mr-2" />
-                            Nachricht senden
-                          </>
-                        )}
+                      <Button type="submit" disabled={kontaktStatus === 'sending'} className="w-full bg-stone-900 hover:bg-stone-800 text-white py-6 rounded-none tracking-wide">
+                        {kontaktStatus === 'sending' ? 'Wird gesendet...' : 'Nachricht senden'}
                       </Button>
                     </>
                   )}
@@ -1636,60 +1627,60 @@ function App() {
         </section>
       </main>
 
-      {/* Footer - Priorisiert: erweitert mit Payment-Icons, mehr Links */}
-      <footer className="bg-gradient-to-b from-slate-900 to-slate-950 text-white py-12">
+      {/* Footer */}
+      <footer className="bg-stone-950 text-white py-16">
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             <div>
-              <img src="/images/logo.png" alt="ECO Building Technik" className="h-12 mb-4 bg-white rounded-lg p-2" />
-              <p className="text-slate-400 text-sm">Ihr Fachbetrieb für nachhaltige Gebäudetechnik in Ebreichsdorf. A+++ Wärmepumpen, Gas-Brennwertgeräte und Smart Home Produkte.</p>
+              <img src="/images/logo.png" alt="ECO Building Technik" className="h-10 mb-6 bg-white p-2" />
+              <p className="text-stone-400 text-sm font-light leading-relaxed">Ihr Fachbetrieb für nachhaltige Gebäudetechnik in Ebreichsdorf. A+++ Wärmepumpen, Gas-Brennwertgeräte und Smart Home Produkte.</p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4 pb-2 border-b-2 border-emerald-500/50">Navigation</h4>
-              <ul className="space-y-2 text-slate-400 text-sm">
-                <li><button onClick={() => scrollToSection('home')} className="hover:text-emerald-400 transition-colors">Home</button></li>
-                <li><button onClick={() => scrollToSection('produkte')} className="hover:text-emerald-400 transition-colors">Produkte</button></li>
-                <li><button onClick={() => scrollToSection('rechner')} className="hover:text-emerald-400 transition-colors">Energie-Rechner</button></li>
-                <li><button onClick={() => scrollToSection('faq')} className="hover:text-emerald-400 transition-colors">FAQ</button></li>
-                <li><button onClick={() => scrollToSection('blog')} className="hover:text-emerald-400 transition-colors">Blog</button></li>
-                <li><button onClick={() => scrollToSection('kontakt')} className="hover:text-emerald-400 transition-colors">Kontakt</button></li>
+              <h4 className="text-xs tracking-[0.2em] uppercase text-stone-500 mb-6">Navigation</h4>
+              <ul className="space-y-3 text-stone-400 text-sm font-light">
+                <li><button onClick={() => scrollToSection('home')} className="hover:text-white transition-colors">Home</button></li>
+                <li><button onClick={() => scrollToSection('produkte')} className="hover:text-white transition-colors">Produkte</button></li>
+                <li><button onClick={() => scrollToSection('rechner')} className="hover:text-white transition-colors">Energie-Rechner</button></li>
+                <li><button onClick={() => scrollToSection('faq')} className="hover:text-white transition-colors">FAQ</button></li>
+                <li><button onClick={() => scrollToSection('blog')} className="hover:text-white transition-colors">Blog</button></li>
+                <li><button onClick={() => scrollToSection('kontakt')} className="hover:text-white transition-colors">Kontakt</button></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4 pb-2 border-b-2 border-emerald-500/50">Rechtliches</h4>
-              <ul className="space-y-2 text-slate-400 text-sm">
-                <li><button onClick={() => setShowAGBDialog(true)} className="hover:text-emerald-400 transition-colors">AGB</button></li>
-                <li><button onClick={() => setShowDatenschutzDialog(true)} className="hover:text-emerald-400 transition-colors">Datenschutzerklärung</button></li>
-                <li><button onClick={() => setShowImpressumDialog(true)} className="hover:text-emerald-400 transition-colors">Impressum</button></li>
+              <h4 className="text-xs tracking-[0.2em] uppercase text-stone-500 mb-6">Rechtliches</h4>
+              <ul className="space-y-3 text-stone-400 text-sm font-light">
+                <li><button onClick={() => setShowAGBDialog(true)} className="hover:text-white transition-colors">AGB</button></li>
+                <li><button onClick={() => setShowDatenschutzDialog(true)} className="hover:text-white transition-colors">Datenschutzerklärung</button></li>
+                <li><button onClick={() => setShowImpressumDialog(true)} className="hover:text-white transition-colors">Impressum</button></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4 pb-2 border-b-2 border-emerald-500/50">Kontakt</h4>
-              <address className="text-slate-400 text-sm not-italic space-y-1">
-                <p><strong className="text-white">ECO Building Technik GmbH</strong></p>
+              <h4 className="text-xs tracking-[0.2em] uppercase text-stone-500 mb-6">Kontakt</h4>
+              <address className="text-stone-400 text-sm not-italic space-y-2 font-light">
+                <p className="text-white">ECO Building Technik GmbH</p>
                 <p>Seepromenade 109</p>
                 <p>2384 Ebreichsdorf, Österreich</p>
-                <p className="pt-2">
-                  <a href="tel:+436643289599" className="text-emerald-400 hover:text-emerald-300">+43 664 328 9599</a>
+                <p className="pt-3">
+                  <a href="tel:+436643289599" className="text-white hover:text-stone-300 transition-colors">+43 664 328 9599</a>
                 </p>
                 <p>
-                  <a href="mailto:office@eco-building.tech" className="text-emerald-400 hover:text-emerald-300">office@eco-building.tech</a>
+                  <a href="mailto:office@eco-building.tech" className="text-white hover:text-stone-300 transition-colors">office@eco-building.tech</a>
                 </p>
-                <p className="pt-2 text-slate-500 text-xs">Mo–Fr: 08:00–17:00 Uhr</p>
+                <p className="pt-2 text-stone-500 text-xs">Mo–Fr: 08:00–17:00 Uhr</p>
               </address>
             </div>
           </div>
-          <div className="border-t border-slate-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-slate-500 text-sm">
-              © 2025 ECO Building Technik GmbH. Alle Rechte vorbehalten. UID: ATU77490127
+          <div className="border-t border-stone-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-6">
+            <p className="text-stone-500 text-sm font-light">
+              © 2025 ECO Building Technik GmbH. Alle Rechte vorbehalten.
             </p>
-            <div className="flex items-center gap-3">
-              <span className="text-slate-500 text-xs">Zahlungsarten:</span>
+            <div className="flex items-center gap-4">
+              <span className="text-stone-600 text-xs tracking-wide uppercase">Zahlungsarten:</span>
               <div className="flex gap-2">
-                <span className="bg-slate-700 px-3 py-1 rounded text-xs font-medium text-slate-300" title="Visa">Visa</span>
-                <span className="bg-slate-700 px-3 py-1 rounded text-xs font-medium text-slate-300" title="Mastercard">MC</span>
-                <span className="bg-slate-700 px-3 py-1 rounded text-xs font-medium text-slate-300" title="PayPal">PayPal</span>
-                <span className="bg-slate-700 px-3 py-1 rounded text-xs font-medium text-slate-300" title="Banküberweisung">Bank</span>
+                <span className="border border-stone-700 px-3 py-1 text-xs text-stone-400">Visa</span>
+                <span className="border border-stone-700 px-3 py-1 text-xs text-stone-400">MC</span>
+                <span className="border border-stone-700 px-3 py-1 text-xs text-stone-400">PayPal</span>
+                <span className="border border-stone-700 px-3 py-1 text-xs text-stone-400">Bank</span>
               </div>
             </div>
           </div>
@@ -1704,9 +1695,9 @@ function App() {
               <DialogHeader>
                 <DialogTitle className="text-xl">{selectedProduct.name}</DialogTitle>
                 <DialogDescription className="flex items-center gap-3">
-                  <span className="text-emerald-600 font-medium">{selectedProduct.category}</span>
+                  <span className="text-stone-900 font-medium">{selectedProduct.category}</span>
                   {selectedProduct.rating && (
-                    <span className="flex items-center gap-1 text-slate-600">
+                    <span className="flex items-center gap-1 text-stone-500">
                       <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
                       {selectedProduct.rating}/5 ({selectedProduct.reviews})
                     </span>
@@ -1716,14 +1707,14 @@ function App() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                 <div className="space-y-4">
-                  <img src={selectedProduct.image} alt={selectedProduct.name} className="w-full h-56 object-cover rounded-xl" />
+                  <img src={selectedProduct.image} alt={selectedProduct.name} className="w-full h-56 object-cover rounded-sm" />
                   {selectedProduct.certificate && (
                     <div>
-                      <p className="text-xs font-medium text-slate-500 mb-1">Zertifikat</p>
+                      <p className="text-xs font-medium text-stone-400 mb-1">Zertifikat</p>
                       <img 
                         src={selectedProduct.certificate} 
                         alt="Produktzertifikat" 
-                        className="w-24 h-24 object-cover rounded-lg border cursor-pointer hover:opacity-90"
+                        className="w-24 h-24 object-cover rounded-sm border cursor-pointer hover:opacity-90"
                         onClick={() => window.open(selectedProduct.certificate, '_blank')}
                       />
                     </div>
@@ -1733,13 +1724,13 @@ function App() {
                 <div className="space-y-4">
                   {/* Beschreibung - kurz oder vollständig */}
                   <div>
-                    <p className={`text-slate-600 text-sm ${!showFullDescription ? 'line-clamp-2' : ''}`}>
+                    <p className={`text-stone-500 text-sm ${!showFullDescription ? 'line-clamp-2' : ''}`}>
                       {showFullDescription ? selectedProduct.fullDescription : selectedProduct.description}
                     </p>
                     {selectedProduct.fullDescription && selectedProduct.fullDescription.length > (selectedProduct.description?.length || 0) && (
                       <button 
                         onClick={() => setShowFullDescription(!showFullDescription)}
-                        className="text-emerald-600 text-xs font-medium mt-1 hover:underline"
+                        className="text-stone-900 text-xs font-medium mt-1 hover:underline"
                       >
                         {showFullDescription ? 'Weniger anzeigen' : 'Vollständige Beschreibung lesen'}
                       </button>
@@ -1749,43 +1740,43 @@ function App() {
                   {/* Specs als kompakte Pills */}
                   <div className="flex flex-wrap gap-2">
                     {selectedProduct.specs.map((spec, i) => (
-                      <span key={i} className="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md text-xs font-medium">{spec}</span>
+                      <span key={i} className="bg-stone-50 text-stone-700 px-2.5 py-1 rounded-md text-xs font-medium">{spec}</span>
                     ))}
                   </div>
                   
                   {/* Preis */}
-                  <div className="py-4 border-y border-slate-100">
-                    <div className="text-3xl font-bold text-emerald-600">
+                  <div className="py-4 border-y border-stone-100">
+                    <div className="text-3xl font-bold text-stone-900">
                       {currentUser?.isWholesale && selectedProduct.wholesalePrice ? selectedProduct.wholesalePrice : selectedProduct.price}
                     </div>
                     {currentUser?.isWholesale && selectedProduct.wholesalePrice && (
-                      <div className="text-sm text-emerald-600">Händlerpreis</div>
+                      <div className="text-sm text-stone-900">Händlerpreis</div>
                     )}
                   </div>
                   
                   <div className="flex items-center gap-3">
-                    <button onClick={() => setProductQuantity(Math.max(1, productQuantity - 1))} className="w-10 h-10 rounded-full border flex items-center justify-center">
+                    <button onClick={() => setProductQuantity(Math.max(1, productQuantity - 1))} className="w-10 h-10 rounded-none border flex items-center justify-center">
                       <Minus className="w-4 h-4" />
                     </button>
                     <Input type="number" min={1} value={productQuantity} onChange={(e) => setProductQuantity(Math.max(1, parseInt(e.target.value) || 1))} className="w-20 text-center" />
-                    <button onClick={() => setProductQuantity(productQuantity + 1)} className="w-10 h-10 rounded-full border flex items-center justify-center">
+                    <button onClick={() => setProductQuantity(productQuantity + 1)} className="w-10 h-10 rounded-none border flex items-center justify-center">
                       <Plus className="w-4 h-4" />
                     </button>
                   </div>
                   
                   <div className="flex gap-2">
                     {currentUser ? (
-                      <Button onClick={() => addToCart(selectedProduct, productQuantity)} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-6">
+                      <Button onClick={() => addToCart(selectedProduct, productQuantity)} className="flex-1 bg-stone-900 hover:bg-stone-800 text-white py-6">
                         <ShoppingCart className="w-5 h-5 mr-2" />
                         In den Warenkorb
                       </Button>
                     ) : (
-                      <Button onClick={() => setShowLoginDialog(true)} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-6">
+                      <Button onClick={() => setShowLoginDialog(true)} className="flex-1 bg-stone-900 hover:bg-stone-800 text-white py-6">
                         <ShoppingCart className="w-5 h-5 mr-2" />
                         Anmelden zum Bestellen
                       </Button>
                     )}
-                    <Button variant="outline" onClick={() => openAngebotDialog(selectedProduct)} className="border-emerald-600 text-emerald-600 hover:bg-emerald-50 py-6">
+                    <Button variant="outline" onClick={() => openAngebotDialog(selectedProduct)} className="border-stone-400 text-stone-900 hover:bg-stone-50 py-6">
                       <Mail className="w-5 h-5 mr-2" />
                       Angebot
                     </Button>
@@ -1800,22 +1791,22 @@ function App() {
                     onClick={() => setShowTechnicalDetails(!showTechnicalDetails)}
                     className="flex items-center justify-between w-full py-2 text-left"
                   >
-                    <span className="font-semibold text-slate-900 flex items-center gap-2">
-                      <Award className="w-5 h-5 text-emerald-600" />
+                    <span className="font-semibold text-stone-900 flex items-center gap-2">
+                      <Award className="w-5 h-5 text-stone-900" />
                       Technische Daten & Details
                     </span>
-                    <span className="text-emerald-600">
+                    <span className="text-stone-900">
                       {showTechnicalDetails ? '▲' : '▼'}
                     </span>
                   </button>
                   
                   {showTechnicalDetails && (
-                    <div className="mt-4 bg-slate-50 rounded-xl p-4">
+                    <div className="mt-4 bg-stone-50 rounded-sm p-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {selectedProduct.technicalDetails.map((detail, index) => (
-                          <div key={index} className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-slate-200 last:border-0">
-                            <span className="text-sm font-medium text-slate-600">{detail.label}</span>
-                            <span className="text-sm text-slate-900 font-semibold">{detail.value}</span>
+                          <div key={index} className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-stone-200 last:border-0">
+                            <span className="text-sm font-medium text-stone-500">{detail.label}</span>
+                            <span className="text-sm text-stone-900 font-semibold">{detail.value}</span>
                           </div>
                         ))}
                       </div>
@@ -1846,18 +1837,18 @@ function App() {
             {([1, 2, 3, 4] as const).map((s) => (
               <div
                 key={s}
-                className={`h-2 flex-1 rounded-full transition-colors ${configStep === s ? 'bg-emerald-600' : configStep > s ? 'bg-emerald-300' : 'bg-slate-200'}`}
+                className={`h-1 flex-1 transition-colors ${configStep === s ? 'bg-stone-900' : configStep > s ? 'bg-stone-400' : 'bg-stone-200'}`}
               />
             ))}
           </div>
 
           {configStep === 1 && (
             <div className="space-y-6">
-              <p className="text-slate-600">
+              <p className="text-stone-500">
                 Wählen Sie Produkte für Ihr Smart Home – Schritt für Schritt. Durchlaufen Sie die Kategorien Lichtschalter, Steckdosen, Beleuchtung, Thermostat und mehr.
               </p>
               <div className="flex justify-end">
-                <Button onClick={() => setConfigStep(2)} className="bg-emerald-600 hover:bg-emerald-700">
+                <Button onClick={() => setConfigStep(2)} className="bg-stone-900 hover:bg-stone-800">
                   Weiter
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
@@ -1872,8 +1863,8 @@ function App() {
                   <button
                     key={cat}
                     onClick={() => setConfigCategoryTab(cat)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                      configCategoryTab === cat ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    className={`px-3 py-1.5 rounded-sm text-sm font-medium transition-colors ${
+                      configCategoryTab === cat ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                     }`}
                   >
                     {cat}
@@ -1884,16 +1875,16 @@ function App() {
                 {(productsByConfigCategory[configCategoryTab] || []).map((product) => {
                   const qty = getConfigQuantity(product.id)
                   return (
-                    <div key={product.id} className="flex items-center gap-4 p-3 bg-slate-50 rounded-xl">
-                      <img src={product.image} alt={product.name} className="w-14 h-14 object-cover rounded-lg" />
+                    <div key={product.id} className="flex items-center gap-4 p-3 bg-stone-50 rounded-sm">
+                      <img src={product.image} alt={product.name} className="w-14 h-14 object-cover rounded-sm" />
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-slate-900 truncate">{product.name}</h4>
-                        <p className="text-emerald-600 font-medium">{product.price}</p>
+                        <h4 className="font-medium text-stone-900 truncate">{product.name}</h4>
+                        <p className="text-stone-900 font-medium">{product.price}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => updateConfigQuantity(product.id, -1)}
-                          className="w-8 h-8 rounded-full bg-white border flex items-center justify-center disabled:opacity-50"
+                          className="w-8 h-8 rounded-none bg-white border flex items-center justify-center disabled:opacity-50"
                           disabled={qty === 0}
                         >
                           <Minus className="w-4 h-4" />
@@ -1901,7 +1892,7 @@ function App() {
                         <span className="w-8 text-center font-medium">{qty}</span>
                         <button
                           onClick={() => addConfigItem(product, 1)}
-                          className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center hover:bg-emerald-700"
+                          className="w-8 h-8 bg-stone-900 text-white flex items-center justify-center hover:bg-stone-800"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
@@ -1911,7 +1902,7 @@ function App() {
                 })}
               </div>
               {hasGirierProducts && !hasHub && girierHub && (
-                <div className="flex items-center justify-between p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                <div className="flex items-center justify-between p-3 bg-amber-50 border border-amber-200 rounded-sm">
                   <p className="text-sm text-amber-800">Empfehlung: GIRIER Zigbee Gateway Hub für Ihre Zigbee-Geräte hinzufügen.</p>
                   <Button size="sm" onClick={() => addConfigItem(girierHub, 1)} className="bg-amber-600 hover:bg-amber-700">
                     <Plus className="w-4 h-4 mr-1" />
@@ -1924,7 +1915,7 @@ function App() {
                   <ChevronLeft className="w-4 h-4 mr-1" />
                   Zurück
                 </Button>
-                <Button onClick={() => setConfigStep(3)} className="bg-emerald-600 hover:bg-emerald-700">
+                <Button onClick={() => setConfigStep(3)} className="bg-stone-900 hover:bg-stone-800">
                   Weiter
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
@@ -1935,18 +1926,18 @@ function App() {
           {configStep === 3 && (
             <div className="space-y-4">
               {configItems.length === 0 ? (
-                <p className="text-slate-500 py-4">Noch keine Produkte ausgewählt. Gehen Sie zurück und wählen Sie Produkte.</p>
+                <p className="text-stone-400 py-4">Noch keine Produkte ausgewählt. Gehen Sie zurück und wählen Sie Produkte.</p>
               ) : (
                 <div className="space-y-2 max-h-[280px] overflow-y-auto">
                   {configItems.map((x) => (
-                    <div key={x.product.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                    <div key={x.product.id} className="flex items-center justify-between p-3 bg-stone-50 rounded-sm">
                       <div>
-                        <span className="font-medium text-slate-900">{x.product.name}</span>
-                        <span className="text-slate-500 ml-2">x{x.quantity}</span>
+                        <span className="font-medium text-stone-900">{x.product.name}</span>
+                        <span className="text-stone-400 ml-2">x{x.quantity}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-emerald-600 font-medium">€ {(x.product.priceValue * x.quantity).toFixed(2)}</span>
-                        <button onClick={() => removeConfigItem(x.product.id)} className="text-slate-400 hover:text-red-600">
+                        <span className="text-stone-900 font-medium">€ {(x.product.priceValue * x.quantity).toFixed(2)}</span>
+                        <button onClick={() => removeConfigItem(x.product.id)} className="text-stone-400 hover:text-red-600">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
@@ -1956,8 +1947,8 @@ function App() {
               )}
               {configItems.length > 0 && (
                 <div className="border-t pt-4 flex justify-between items-center">
-                  <span className="font-semibold text-slate-900">Gesamt</span>
-                  <span className="text-xl font-bold text-emerald-600">€ {configTotal.toFixed(2)}</span>
+                  <span className="font-semibold text-stone-900">Gesamt</span>
+                  <span className="text-xl font-bold text-stone-900">€ {configTotal.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between pt-2">
@@ -1965,7 +1956,7 @@ function App() {
                   <ChevronLeft className="w-4 h-4 mr-1" />
                   Zurück
                 </Button>
-                <Button onClick={() => setConfigStep(4)} disabled={configItems.length === 0} className="bg-emerald-600 hover:bg-emerald-700">
+                <Button onClick={() => setConfigStep(4)} disabled={configItems.length === 0} className="bg-stone-900 hover:bg-stone-800">
                   Weiter
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
@@ -1975,7 +1966,7 @@ function App() {
 
           {configStep === 4 && (
             <div className="space-y-6">
-              <p className="text-slate-600">
+              <p className="text-stone-500">
                 {configItems.length > 0
                   ? `Ihre Konfiguration mit ${configItems.reduce((s, x) => s + x.quantity, 0)} Artikeln (€ ${configTotal.toFixed(2)}) ist bereit.`
                   : 'Keine Produkte ausgewählt.'}
@@ -1984,7 +1975,7 @@ function App() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Button
                     onClick={addConfigToCart}
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                    className="flex-1 bg-stone-900 hover:bg-stone-800"
                   >
                     <ShoppingCart className="w-5 h-5 mr-2" />
                     In den Warenkorb
@@ -1992,7 +1983,7 @@ function App() {
                   <Button
                     variant="outline"
                     onClick={requestConfigAngebot}
-                    className="flex-1 border-emerald-600 text-emerald-600 hover:bg-emerald-50"
+                    className="flex-1 border-stone-400 text-stone-900 hover:bg-stone-50"
                   >
                     <Mail className="w-5 h-5 mr-2" />
                     Angebot anfragen
@@ -2020,7 +2011,7 @@ function App() {
             <DialogTitle>Angebot</DialogTitle>
             <DialogDescription>
               {angebotProduct ? (
-                <>Anfrage für: <strong className="text-emerald-600">{angebotProduct.name}</strong></>
+                <>Anfrage für: <strong className="text-stone-900">{angebotProduct.name}</strong></>
               ) : (
                 'Kontaktieren Sie uns für eine kostenlose Beratung.'
               )}
@@ -2029,16 +2020,16 @@ function App() {
           
           {angebotStatus === 'success' ? (
             <div className="py-6 text-center">
-              <div className="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Check className="w-7 h-7 text-emerald-600" />
+              <div className="w-14 h-14 bg-stone-100 rounded-none flex items-center justify-center mx-auto mb-3">
+                <Check className="w-7 h-7 text-stone-900" />
               </div>
-              <p className="font-semibold text-slate-900">Vielen Dank!</p>
-              <p className="text-slate-600 text-sm mt-1">Ihre Anfrage wurde gesendet. Wir melden uns in Kürze.</p>
+              <p className="font-semibold text-stone-900">Vielen Dank!</p>
+              <p className="text-stone-500 text-sm mt-1">Ihre Anfrage wurde gesendet. Wir melden uns in Kürze.</p>
             </div>
           ) : angebotStatus === 'error' ? (
             <div className="py-6 text-center">
               <p className="text-red-600 font-medium">Fehler beim Senden.</p>
-              <p className="text-slate-600 text-sm mt-1">Bitte versuchen Sie es erneut oder kontaktieren Sie uns per E-Mail.</p>
+              <p className="text-stone-500 text-sm mt-1">Bitte versuchen Sie es erneut oder kontaktieren Sie uns per E-Mail.</p>
               <Button onClick={() => setAngebotStatus('idle')} variant="outline" className="mt-4">Erneut versuchen</Button>
             </div>
           ) : (
@@ -2059,7 +2050,7 @@ function App() {
                 <Label htmlFor="angebot-message">Nachricht *</Label>
                 <Textarea id="angebot-message" value={angebotForm.message} onChange={(e) => setAngebotForm(f => ({ ...f, message: e.target.value }))} rows={4} placeholder="Ihre Anfrage oder gewünschte Details..." required />
               </div>
-              <Button type="submit" disabled={angebotStatus === 'sending'} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6">
+              <Button type="submit" disabled={angebotStatus === 'sending'} className="w-full bg-stone-900 hover:bg-stone-800 text-white py-6">
                 {angebotStatus === 'sending' ? (
                   <>Wird gesendet...</>
                 ) : (
@@ -2085,26 +2076,26 @@ function App() {
           </DialogHeader>
           
           {cart.length === 0 ? (
-            <div className="text-center py-8 text-slate-500">
-              <ShoppingCart className="w-12 h-12 mx-auto mb-3 text-slate-300" />
+            <div className="text-center py-8 text-stone-400">
+              <ShoppingCart className="w-12 h-12 mx-auto mb-3 text-stone-300" />
               <p>Ihr Warenkorb ist leer</p>
             </div>
           ) : (
             <>
               <div className="space-y-4">
                 {cart.map((item) => (
-                  <div key={item.id} className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
-                    <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-lg" />
+                  <div key={item.id} className="flex items-center gap-4 p-4 bg-stone-50 rounded-sm">
+                    <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-sm" />
                     <div className="flex-1">
-                      <h4 className="font-semibold text-slate-900">{item.name}</h4>
-                      <p className="text-emerald-600 font-medium">€ {(item.priceValue * item.quantity).toFixed(2)}</p>
+                      <h4 className="font-semibold text-stone-900">{item.name}</h4>
+                      <p className="text-stone-900 font-medium">€ {(item.priceValue * item.quantity).toFixed(2)}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button onClick={() => updateQuantity(item.id, -1)} className="w-8 h-8 rounded-full bg-white border flex items-center justify-center">
+                      <button onClick={() => updateQuantity(item.id, -1)} className="w-8 h-8 rounded-none bg-white border flex items-center justify-center">
                         <Minus className="w-4 h-4" />
                       </button>
                       <span className="w-8 text-center font-medium">{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.id, 1)} className="w-8 h-8 rounded-full bg-white border flex items-center justify-center">
+                      <button onClick={() => updateQuantity(item.id, 1)} className="w-8 h-8 rounded-none bg-white border flex items-center justify-center">
                         <Plus className="w-4 h-4" />
                       </button>
                     </div>
@@ -2116,30 +2107,30 @@ function App() {
               </div>
               
               <div className="border-t pt-4 mt-4">
-                <div className="bg-slate-50 rounded-xl p-4 mb-4">
+                <div className="bg-stone-50 rounded-sm p-4 mb-4">
                   <div className="flex justify-between mb-2">
-                    <span className="text-slate-600">Zwischensumme ({cartItemCount} Artikel)</span>
+                    <span className="text-stone-500">Zwischensumme ({cartItemCount} Artikel)</span>
                     <span>€ {cartTotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between mb-2">
-                    <span className="text-slate-600">Versand</span>
-                    <span className={cartTotal >= 500 ? 'text-emerald-600' : ''}>
+                    <span className="text-stone-500">Versand</span>
+                    <span className={cartTotal >= 500 ? 'text-stone-900' : ''}>
                       {cartTotal >= 500 ? 'Kostenlos' : '€ 15.00'}
                     </span>
                   </div>
                   <div className="flex justify-between font-semibold text-lg mt-2">
                     <span>Gesamt</span>
-                    <span className="text-emerald-600">€ {(cartTotal >= 500 ? cartTotal : cartTotal + 15).toFixed(2)}</span>
+                    <span className="text-stone-900">€ {(cartTotal >= 500 ? cartTotal : cartTotal + 15).toFixed(2)}</span>
                   </div>
                 </div>
                 
                 <div className="mb-4">
-                  <p className="text-xs text-slate-500 mb-2">Zahlungsarten:</p>
+                  <p className="text-xs text-stone-400 mb-2">Zahlungsarten:</p>
                   <div className="flex gap-2 flex-wrap text-xs">
-                    <span className="bg-slate-100 px-2 py-1 rounded">Rechnung</span>
+                    <span className="bg-stone-100 px-2 py-1 rounded">Rechnung</span>
                     <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">PayPal</span>
-                    <span className="bg-slate-100 px-2 py-1 rounded">Kreditkarte</span>
-                    <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded">Sofort</span>
+                    <span className="bg-stone-100 px-2 py-1 rounded">Kreditkarte</span>
+                    <span className="bg-stone-100 text-stone-700 px-2 py-1 rounded">Sofort</span>
                     <span className="bg-pink-100 text-pink-700 px-2 py-1 rounded">Klarna</span>
                   </div>
                 </div>
@@ -2150,7 +2141,7 @@ function App() {
                     setCheckoutStep('review')
                     setShowCheckoutDialog(true)
                   }}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6"
+                  className="w-full bg-stone-900 hover:bg-stone-800 text-white py-6"
                 >
                   <CreditCard className="w-5 h-5 mr-2" />
                   Zur Kasse
@@ -2174,7 +2165,7 @@ function App() {
           
           {checkoutStep === 'review' && (
             <div className="space-y-6">
-              <div className="bg-slate-50 rounded-xl p-4">
+              <div className="bg-stone-50 rounded-sm p-4">
                 <h4 className="font-semibold mb-3">Ihre Bestellung</h4>
                 {cart.map((item) => (
                   <div key={item.id} className="flex justify-between text-sm mb-2">
@@ -2193,12 +2184,12 @@ function App() {
                   </div>
                   <div className="flex justify-between font-semibold text-lg mt-2">
                     <span>Gesamt</span>
-                    <span className="text-emerald-600">€ {(cartTotal >= 500 ? cartTotal : cartTotal + 15).toFixed(2)}</span>
+                    <span className="text-stone-900">€ {(cartTotal >= 500 ? cartTotal : cartTotal + 15).toFixed(2)}</span>
                   </div>
                 </div>
               </div>
               
-              <Button onClick={() => setCheckoutStep('payment')} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6">
+              <Button onClick={() => setCheckoutStep('payment')} className="w-full bg-stone-900 hover:bg-stone-800 text-white py-6">
                 Weiter zur Zahlung
               </Button>
             </div>
@@ -2206,9 +2197,9 @@ function App() {
           
           {checkoutStep === 'payment' && (
             <div className="space-y-4">
-              <div className="bg-emerald-50 rounded-xl p-4 mb-4">
-                <p className="text-sm font-semibold text-emerald-800 mb-2">Unsere Bankverbindung:</p>
-                <div className="text-sm text-emerald-700 space-y-1">
+              <div className="bg-stone-50 rounded-sm p-4 mb-4">
+                <p className="text-sm font-semibold text-stone-700 mb-2">Unsere Bankverbindung:</p>
+                <div className="text-sm text-stone-700 space-y-1">
                   <p><strong>Empfänger:</strong> GF Johannes Fernberg / ECO Building Technik GmbH</p>
                   <p><strong>IBAN:</strong> AT131400000910084097</p>
                   <p><strong>BIC:</strong> BAWAATWW</p>
@@ -2226,12 +2217,12 @@ function App() {
                   <button
                     key={method.id}
                     onClick={() => setPaymentMethod(method.id as any)}
-                    className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
-                      paymentMethod === method.id ? 'border-emerald-600 bg-emerald-50' : 'border-slate-200'
+                    className={`w-full p-4 rounded-sm border-2 text-left transition-all ${
+                      paymentMethod === method.id ? 'border-stone-400 bg-stone-50' : 'border-stone-200'
                     }`}
                   >
                     <div className="font-medium">{method.name}</div>
-                    <div className="text-sm text-slate-500">{method.desc}</div>
+                    <div className="text-sm text-stone-400">{method.desc}</div>
                   </button>
                 ))}
               </div>
@@ -2244,7 +2235,7 @@ function App() {
                     setCheckoutStep('confirmation')
                     setCart([])
                   }}
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                  className="flex-1 bg-stone-900 hover:bg-stone-800 text-white"
                 >
                   Jetzt bezahlen
                 </Button>
@@ -2254,40 +2245,40 @@ function App() {
           
           {checkoutStep === 'confirmation' && (
             <div className="text-center py-8">
-              <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Check className="w-10 h-10 text-emerald-600" />
+              <div className="w-20 h-20 bg-stone-100 rounded-none flex items-center justify-center mx-auto mb-6">
+                <Check className="w-10 h-10 text-stone-900" />
               </div>
               <h3 className="text-2xl font-bold mb-2">Vielen Dank für Ihre Bestellung!</h3>
-              <p className="text-slate-600 mb-4">Wir haben Ihre Bestellung erhalten und bearbeiten diese umgehend.</p>
+              <p className="text-stone-500 mb-4">Wir haben Ihre Bestellung erhalten und bearbeiten diese umgehend.</p>
               
-              <div className="bg-slate-50 rounded-xl p-4 mb-4">
-                <p className="text-sm text-slate-500">Bestellnummer</p>
-                <p className="text-xl font-bold text-emerald-600">{orderNumber}</p>
+              <div className="bg-stone-50 rounded-sm p-4 mb-4">
+                <p className="text-sm text-stone-400">Bestellnummer</p>
+                <p className="text-xl font-bold text-stone-900">{orderNumber}</p>
               </div>
               
-              <div className="bg-slate-50 rounded-xl p-4 mb-4">
-                <p className="text-sm text-slate-500">Gesamtbetrag</p>
+              <div className="bg-stone-50 rounded-sm p-4 mb-4">
+                <p className="text-sm text-stone-400">Gesamtbetrag</p>
                 <p className="text-xl font-bold">€ {(cartTotal >= 500 ? cartTotal : cartTotal + 15).toFixed(2)}</p>
               </div>
               
               {paymentMethod === 'invoice' && (
-                <div className="bg-emerald-50 rounded-xl p-4 mb-6 text-left border-2 border-emerald-200">
-                  <p className="text-sm font-semibold text-emerald-800 mb-3 flex items-center gap-2">
+                <div className="bg-stone-50 rounded-sm p-4 mb-6 text-left border-2 border-stone-300">
+                  <p className="text-sm font-semibold text-stone-700 mb-3 flex items-center gap-2">
                     <CreditCard className="w-4 h-4" />
                     Bitte überweisen Sie den Betrag auf folgendes Konto:
                   </p>
-                  <div className="text-sm text-emerald-700 space-y-2 bg-white rounded-lg p-3">
+                  <div className="text-sm text-stone-700 space-y-2 bg-white rounded-sm p-3">
                     <p><strong>Empfänger:</strong> GF Johannes Fernberg / ECO Building Technik GmbH</p>
                     <p><strong>IBAN:</strong> AT131400000910084097</p>
                     <p><strong>BIC:</strong> BAWAATWW</p>
-                    <p className="text-emerald-600 font-semibold"><strong>Verwendungszweck:</strong> {orderNumber}</p>
+                    <p className="text-stone-900 font-semibold"><strong>Verwendungszweck:</strong> {orderNumber}</p>
                   </div>
-                  <p className="text-xs text-emerald-600 mt-3">Bitte geben Sie unbedingt die Bestellnummer als Verwendungszweck an!</p>
+                  <p className="text-xs text-stone-900 mt-3">Bitte geben Sie unbedingt die Bestellnummer als Verwendungszweck an!</p>
                 </div>
               )}
               
               {paymentMethod !== 'invoice' && (
-                <div className="bg-blue-50 rounded-xl p-4 mb-6 text-left">
+                <div className="bg-blue-50 rounded-sm p-4 mb-6 text-left">
                   <p className="text-sm text-blue-700">
                     <strong>Zahlungsmethode:</strong> {paymentMethod === 'paypal' ? 'PayPal' : paymentMethod === 'card' ? 'Kreditkarte' : paymentMethod === 'sofort' ? 'Sofortüberweisung' : 'Klarna'}
                   </p>
@@ -2295,9 +2286,9 @@ function App() {
                 </div>
               )}
               
-              <p className="text-sm text-slate-500 mb-4">Eine Bestellbestätigung wurde an {currentUser?.email} gesendet.</p>
+              <p className="text-sm text-stone-400 mb-4">Eine Bestellbestätigung wurde an {currentUser?.email} gesendet.</p>
               
-              <Button onClick={() => { setShowCheckoutDialog(false); setCheckoutStep('review') }} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              <Button onClick={() => { setShowCheckoutDialog(false); setCheckoutStep('review') }} className="bg-stone-900 hover:bg-stone-800 text-white">
                 Weiter einkaufen
               </Button>
             </div>
@@ -2323,7 +2314,7 @@ function App() {
               <Input type="password" placeholder="••••••" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} />
             </div>
             <Button 
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6"
+              className="w-full bg-stone-900 hover:bg-stone-800 text-white py-6"
               onClick={() => {
                 if (loginEmail.includes('@') && loginPassword.length >= 4) {
                   setCurrentUser({
@@ -2341,7 +2332,7 @@ function App() {
               Anmelden
             </Button>
             <div className="text-center">
-              <p className="text-sm text-slate-500">Noch kein Konto?</p>
+              <p className="text-sm text-stone-400">Noch kein Konto?</p>
               <Button variant="outline" className="w-full mt-2" onClick={() => { setShowLoginDialog(false); setShowRegisterDialog(true) }}>
                 Registrieren
               </Button>
@@ -2362,11 +2353,11 @@ function App() {
             <div>
               <Label className="mb-2 block">Ich bin *</Label>
               <div className="flex gap-4">
-                <button onClick={() => setRegisterType('private')} className={`flex-1 p-3 rounded-xl border-2 text-center ${registerType === 'private' ? 'border-emerald-600 bg-emerald-50' : 'border-slate-200'}`}>
+                <button onClick={() => setRegisterType('private')} className={`flex-1 p-3 rounded-sm border-2 text-center ${registerType === 'private' ? 'border-stone-400 bg-stone-50' : 'border-stone-200'}`}>
                   <User className="w-6 h-6 mx-auto mb-1" />
                   <span className="text-sm font-medium">Privatperson</span>
                 </button>
-                <button onClick={() => setRegisterType('company')} className={`flex-1 p-3 rounded-xl border-2 text-center ${registerType === 'company' ? 'border-emerald-600 bg-emerald-50' : 'border-slate-200'}`}>
+                <button onClick={() => setRegisterType('company')} className={`flex-1 p-3 rounded-sm border-2 text-center ${registerType === 'company' ? 'border-stone-400 bg-stone-50' : 'border-stone-200'}`}>
                   <Building2 className="w-6 h-6 mx-auto mb-1" />
                   <span className="text-sm font-medium">Firma</span>
                 </button>
@@ -2405,7 +2396,7 @@ function App() {
             )}
             
             <Button 
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6"
+              className="w-full bg-stone-900 hover:bg-stone-800 text-white py-6"
               onClick={() => {
                 const isValid = registerType === 'private'
                   ? registerName && registerEmail.includes('@') && registerPassword.length >= 6
@@ -2438,7 +2429,7 @@ function App() {
       <Dialog open={showAGBDialog} onOpenChange={setShowAGBDialog}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Allgemeine Geschäftsbedingungen</DialogTitle></DialogHeader>
-          <div className="space-y-4 text-sm text-slate-700">
+          <div className="space-y-4 text-sm text-stone-700">
             <h4 className="font-semibold">1. Geltungsbereich</h4>
             <p>Diese Allgemeinen Geschäftsbedingungen gelten für alle Bestellungen über unseren Online-Shop zwischen ECO Building Technik GmbH und Verbrauchern sowie Unternehmern.</p>
             <h4 className="font-semibold">2. Vertragspartner</h4>
@@ -2467,7 +2458,7 @@ function App() {
       <Dialog open={showDatenschutzDialog} onOpenChange={setShowDatenschutzDialog}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Datenschutzerklärung</DialogTitle></DialogHeader>
-          <div className="space-y-4 text-sm text-slate-700">
+          <div className="space-y-4 text-sm text-stone-700">
             <h4 className="font-semibold">1. Verantwortlicher</h4>
             <p>ECO Building Technik GmbH, Seepromenade 109, AT-2384 Ebreichsdorf, E-Mail: office@eco-building.tech</p>
             <h4 className="font-semibold">2. Erhebung und Verarbeitung personenbezogener Daten</h4>
@@ -2486,9 +2477,9 @@ function App() {
             <h4 className="font-semibold">5. Speicherdauer</h4>
             <p>Ihre Daten werden gelöscht, sobald sie für die genannten Zwecke nicht mehr erforderlich sind und keine gesetzlichen Aufbewahrungspflichten bestehen. Rechnungsdaten werden gemäß österreichischem Bundesabgabenordnung für 7 Jahre aufbewahrt.</p>
             <h4 className="font-semibold">6. Ihre Rechte</h4>
-            <p>Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch (Art. 21). Kontaktieren Sie uns unter <a href="mailto:office@eco-building.tech" className="text-emerald-600 hover:underline">office@eco-building.tech</a>.</p>
+            <p>Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch (Art. 21). Kontaktieren Sie uns unter <a href="mailto:office@eco-building.tech" className="text-stone-900 hover:underline">office@eco-building.tech</a>.</p>
             <h4 className="font-semibold">7. Beschwerderecht</h4>
-            <p>Sie haben das Recht, sich bei der zuständigen Datenschutzbehörde zu beschweren: Österreichische Datenschutzbehörde, Barichgasse 40-42, 1030 Wien, <a href="mailto:dsb@dsb.gv.at" className="text-emerald-600 hover:underline">dsb@dsb.gv.at</a>.</p>
+            <p>Sie haben das Recht, sich bei der zuständigen Datenschutzbehörde zu beschweren: Österreichische Datenschutzbehörde, Barichgasse 40-42, 1030 Wien, <a href="mailto:dsb@dsb.gv.at" className="text-stone-900 hover:underline">dsb@dsb.gv.at</a>.</p>
             <h4 className="font-semibold">8. Cookies</h4>
             <p>Unsere Webseite verwendet Cookies. Nähere Informationen finden Sie in unserer Cookie-Richtlinie.</p>
           </div>
@@ -2498,11 +2489,11 @@ function App() {
       <Dialog open={showImpressumDialog} onOpenChange={setShowImpressumDialog}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Impressum</DialogTitle></DialogHeader>
-          <div className="space-y-4 text-sm text-slate-700">
+          <div className="space-y-4 text-sm text-stone-700">
             <h4 className="font-semibold">ECO Building Technik GmbH</h4>
             <p>Seepromenade 109<br/>AT-2384 Ebreichsdorf<br/>Österreich</p>
             <h4 className="font-semibold">Kontakt</h4>
-            <p>Telefon: <a href="tel:+436643289599" className="text-emerald-600 hover:underline">+43 664 328 9599</a><br/>E-Mail: <a href="mailto:office@eco-building.tech" className="text-emerald-600 hover:underline">office@eco-building.tech</a></p>
+            <p>Telefon: <a href="tel:+436643289599" className="text-stone-900 hover:underline">+43 664 328 9599</a><br/>E-Mail: <a href="mailto:office@eco-building.tech" className="text-stone-900 hover:underline">office@eco-building.tech</a></p>
             <h4 className="font-semibold">Vertretungsberechtigte Geschäftsführer</h4>
             <p>Johannes Fernberg</p>
             <h4 className="font-semibold">Firmenbuchdaten</h4>
@@ -2510,7 +2501,7 @@ function App() {
             <h4 className="font-semibold">Aufsichtsbehörde</h4>
             <p>Gewerbebehörde: Bezirkshauptmannschaft Baden<br/>Berufsrecht: Gewerbeordnung (GewO)</p>
             <h4 className="font-semibold">Streitschlichtung</h4>
-            <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline">https://ec.europa.eu/consumers/odr</a>. Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
+            <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer" className="text-stone-900 hover:underline">https://ec.europa.eu/consumers/odr</a>. Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
             <h4 className="font-semibold">Haftung für Inhalte</h4>
             <p>Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen.</p>
             <h4 className="font-semibold">Haftung für Links</h4>
