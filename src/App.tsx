@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
+import { ChatWidget } from '@/components/ChatWidget'
 import './App.css'
 
 // Types
@@ -2513,6 +2514,17 @@ function App() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* AI Sales Agent Chat Widget */}
+      <ChatWidget 
+        onViewProduct={(productId) => {
+          const product = products.find(p => p.id === productId)
+          if (product) {
+            setSelectedProduct(product)
+            setProductQuantity(1)
+          }
+        }}
+      />
     </div>
   )
 }
